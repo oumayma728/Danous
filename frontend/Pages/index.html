@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danous - Gestion de Budget Collaborative</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f4f6f5;
+            color: #1a1a2e;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: #0a4a3a;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo span {
+            font-size: 0.8rem;
+            font-weight: normal;
+            color: #ccc;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .btn-outline {
+            border: 1px solid white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        .btn-primary {
+            background: #0d6b55;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #0a4a3a 0%, #0d6b55 100%);
+            color: white;
+            padding: 120px 2rem 80px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-large {
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .btn-large:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-light {
+            background: white;
+            color: #0a4a3a;
+        }
+
+        .btn-outline-light {
+            border: 2px solid white;
+            color: white;
+        }
+
+        /* Features */
+        .features {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .features h2 {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #0a2a20;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: #0a4a3a;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: #0a2a20;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .nav-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Danous <span>budget flow</span></div>
+        <div class="nav-links">
+            <a href="index.html">Accueil</a>
+            <a href="login.html">Connexion</a>
+            <a href="register.html" class="btn-primary">Inscription</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Gérez vos finances ensemble</h1>
+        <p>Application collaborative de gestion de budget personnel pour famille, colocataires ou équipes de projet</p>
+        <div class="hero-buttons">
+            <a href="register.html" class="btn-large btn-light">Commencer gratuitement</a>
+            <a href="login.html" class="btn-large btn-outline-light">Se connecter</a>
+        </div>
+    </section>
+
+    <section class="features">
+        <h2>Fonctionnalités principales</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>Suivi des revenus/dépenses</h3>
+                <p>Ajoutez, modifiez et supprimez vos transactions facilement</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Budget collaboratif</h3>
+                <p>Partagez vos budgets avec famille, colocataires ou amis</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Tableau de bord</h3>
+                <p>Visualisez vos statistiques et suivez vos objectifs</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚠️</div>
+                <h3>Alertes intelligentes</h3>
+                <p>Soyez notifié en cas de dépassement de budget</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏷️</div>
+                <h3>Catégories personnalisées</h3>
+                <p>Organisez vos dépenses par catégories</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3>Statistiques visuelles</h3>
+                <p>Graphiques et indicateurs pour mieux comprendre</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2026 Danous - Gestion de Budget Collaborative</p>
+    </footer>
+</body>
+</html>

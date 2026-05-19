@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord - Danous</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f4f6f5;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #0a4a3a;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            padding: 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #0d6b55;
+        }
+
+        .nav-item a {
+            color: white;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 260px;
+            padding: 1.5rem;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+
+        .trend.up { color: #0a6640; }
+        .trend.down { color: #d32f2f; }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 1rem;
+            color: #0a2a20;
+        }
+
+        /* Recent Transactions */
+        .transactions-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .transactions-card h3 {
+            margin-bottom: 1rem;
+            color: #0a2a20;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        th {
+            background: #f4f6f5;
+            font-weight: 600;
+        }
+
+        .income {
+            color: #0a6640;
+            font-weight: 600;
+        }
+
+        .expense {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            background: #e8e8e8;
+        }
+
+        /* Alert */
+        .alert {
+            background: #fff3e0;
+            border-left: 4px solid #e67e22;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+                padding: 1rem 0.5rem;
+            }
+            .sidebar .logo, .sidebar .nav-item span {
+                display: none;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">Danous</div>
+        <div class="nav-item active">
+            <span>📊</span>
+            <a href="#">Tableau de bord</a>
+        </div>
+        <div class="nav-item">
+            <span>💰</span>
+            <a href="transactions.html">Transactions</a>
+        </div>
+        <div class="nav-item">
+            <span>📋</span>
+            <a href="budgets.html">Budgets</a>
+        </div>
+        <div class="nav-item">
+            <span>🏷️</span>
+            <a href="categories.html">Catégories</a>
+        </div>
+        <div class="nav-item">
+            <span>👥</span>
+            <a href="collaboration.html">Budgets partagés</a>
+        </div>
+        <div class="nav-item">
+            <span>👤</span>
+            <a href="profile.html">Mon profil</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h2>Tableau de bord</h2>
+            <div class="user-info">
+                <span>Bonjour</span>
+                <button class="logout-btn" onclick="logout()">Déconnexion</button>
+            </div>
+        </div>
+    
+    <script>
+        function logout() {
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

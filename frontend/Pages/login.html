@@ -4,29 +4,226 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login — Danous</title>
-    <link rel="stylesheet" href="../assets/css/auth.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f4f6f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+        }
+
+        .auth-card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #e8e8e8;
+            padding: 36px 32px;
+        }
+
+        /* Logo */
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        .auth-logo-icon {
+            width: 38px;
+            height: 38px;
+            background: #0a4a3a;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 17px;
+        }
+        .auth-logo-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: #0a2a20;
+            line-height: 1.1;
+        }
+        .auth-logo-sub {
+            font-size: 10px;
+            color: #aaa;
+            letter-spacing: .5px;
+        }
+
+        /* Headings */
+        .auth-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0a2a20;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .auth-subtitle {
+            font-size: 13px;
+            color: #999;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #e8e8e8;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #1a1a2e;
+            background: #fafafa;
+            outline: none;
+            transition: border-color .2s, background .2s;
+            font-family: inherit;
+        }
+        .form-group input:focus {
+            border-color: #0a4a3a;
+            background: #fff;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .auth-forgot {
+            text-align: right;
+            margin: -6px 0 14px;
+            font-size: 12px;
+        }
+        .auth-forgot a {
+            color: #0a4a3a;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        /* Button */
+        .btn-primary {
+            width: 100%;
+            padding: 11px;
+            background: #0a4a3a;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+            font-family: inherit;
+        }
+        .btn-primary:hover    { background: #0d6b55; }
+        .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+
+        /* Messages */
+        .msg { 
+            display: none; 
+            padding: 10px 12px; 
+            border-radius: 8px; 
+            font-size: 13px; 
+            margin-bottom: 16px; 
+            text-align: center; 
+        }
+        .msg.show         { display: block; }
+        .msg.success      { background: #e6f9f0; color: #0a6640; }
+        .msg.error        { background: #fdecea; color: #a32d2d; }
+
+        .auth-pending-note {
+            background: #f0f7f4;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 12px;
+            color: #0a4a3a;
+            text-align: center;
+            margin-top: 12px;
+        }
+
+        /* Footer link */
+        .auth-link {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 13px;
+            color: #999;
+        }
+        .auth-link a {
+            color: #0a4a3a;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-link a:hover { text-decoration: underline; }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .auth-card  { padding: 28px 20px; }
+            .input-row  { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
+            <div class="auth-logo">
+                <div class="auth-logo-icon">D</div>
+                <div class="auth-logo-name">
+                    Danous<br>
+                    <span class="auth-logo-sub">budget flow</span>
+                </div>
+            </div>
+            
             <h1 class="auth-title">Welcome back</h1>
             <p class="auth-subtitle">Sign in to your account</p>
-            <div id="msg" class="msg hidden"></div>
+            
+            <div id="msg" class="msg"></div>
+            
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
+                    <label for="email">Email address</label>
                     <input type="email" id="email" name="email" placeholder="you@example.com" required>
                 </div>
+                
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Your password" required>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
                 </div>
+                
+                <div class="auth-forgot">
+                    <a href="#">Forgot password?</a>
+                </div>
+                
                 <button type="submit" class="btn-primary" id="submitBtn">Sign in</button>
             </form>
-
-            <p class="auth-link">No account yet? <a href="register.html">Register</a></p>
+            
+            <p class="auth-link">No account yet? <a href="register.html">Create account</a></p>
         </div>
     </div>
+    
     <script src="../assets/js/auth.js"></script>
 </body>
 </html>

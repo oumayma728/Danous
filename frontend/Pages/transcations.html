@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - Danous</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f4f6f5;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #0a4a3a;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            padding: 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #0d6b55;
+        }
+
+        .nav-item a {
+            color: white;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 1.5rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+        }
+
+        .btn-add {
+            background: #0a4a3a;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .filters {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+        }
+
+        .transactions-table {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        th {
+            background: #f4f6f5;
+            font-weight: 600;
+        }
+
+        .income {
+            color: #0a6640;
+            font-weight: 600;
+        }
+
+        .expense {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            background: #e8e8e8;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0 0.25rem;
+            padding: 0.25rem;
+        }
+
+        .edit-btn { color: #0a4a3a; }
+        .delete-btn { color: #d32f2f; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .btn-save {
+            background: #0a4a3a;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #e8e8e8;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">Danous</div>
+        <div class="nav-item">
+            <span>📊</span>
+            <a href="dashboard.html">Tableau de bord</a>
+        </div>
+        <div class="nav-item active">
+            <span>💰</span>
+            <a href="transactions.html">Transactions</a>
+        </div>
+        <div class="nav-item">
+            <span>📋</span>
+            <a href="budgets.html">Budgets</a>
+        </div>
+        <div class="nav-item">
+            <span>🏷️</span>
+            <a href="categories.html">Catégories</a>
+        </div>
+        <div class="nav-item">
+            <span>👥</span>
+            <a href="collaboration.html">Budgets partagés</a>
+        </div>
+        <div class="nav-item">
+            <span>👤</span>
+            <a href="profile.html">Mon profil</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h2>Gestion des transactions</h2>
+            <button class="btn-add" onclick="openAddModal()">+ Nouvelle transaction</button>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label>Date début</label>
+                <input type="date" id="startDate">
+            </div>
+            <div class="filter-group">
+                <label>Date fin</label>
+                <input type="date" id="endDate">
+            </div>
+            <div class="filter-group">
+                <label>Catégorie</label>
+                <select id="categoryFilter">
+                    <option value="">Toutes</option>
+                    <option value="alimentation">Alimentation</option>
+                    <option value="transport">Transport</option>
+                    <option value="logement">Logement</option>
+                    <option value="loisirs">Loisirs</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Type</label>
+                <select id="typeFilter">
+                    <option value="">Tous</option>
+                    <option value="revenu">Revenus</option>
+                    <option value="depense">Dépenses</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button class="btn-add" onclick="applyFilters()">Filtrer</button>
+            </div>
+        </div>
+
+        <div class="transactions-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Catégorie</th>
+                        <th>Type</th>
+                        <th>Montant</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsBody">
+                    <tr>
+                        <td>2024-01-15</td>
+                        <td>Courses Super U</td>
+                        <td><span class="badge">Alimentation</span></td>
+                        <td>Dépense</td>
+                        <td class="expense">-85,50 €</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="editTransaction(1)">✏️</button>
+                            <button class="action-btn delete-btn" onclick="deleteTransaction(1)">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2024-01-14</td>
+                        <td>Salaire Janvier</td>
+                        <td><span class="badge">Revenu</span></td>
+                        <td>Revenu</td>
+                        <td class="income">+2 500,00 €</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="editTransaction(2)">✏️</button>
+                            <button class="action-btn delete-btn" onclick="deleteTransaction(2)">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2024-01-12</td>
+                        <td>Abonnement Netflix</td>
+                        <td><span class="badge">Loisirs</span></td>
+                        <td>Dépense</td>
+                        <td class="expense">-12,99 €</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="editTransaction(3)">✏️</button>
+                            <button class="action-btn delete-btn" onclick="deleteTransaction(3)">🗑️</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit Transaction -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Ajouter une transaction</h3>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="type" required>
+                        <option value="depense">Dépense</option>
+                        <option value="revenu">Revenu</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="description" required>
+                </div>
+                <div class="form-group">
+                    <label>Montant</label>
+                    <input type="number" id="amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Catégorie</label>
+                    <select id="category" required>
+                        <option value="alimentation">Alimentation</option>
+                        <option value="transport">Transport</option>
+                        <option value="logement">Logement</option>
+                        <option value="sante">Santé</option>
+                        <option value="loisirs">Loisirs</option>
+                        <option value="etudes">Études</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
+                    <button type="submit" class="btn-save">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Ajouter une transaction';
+            document.getElementById('transactionForm').reset();
+            document.getElementById('transactionModal').style.display = 'flex';
+        }
+
+        function editTransaction(id) {
+            document.getElementById('modalTitle').textContent = 'Modifier la transaction';
+            document.getElementById('transactionModal').style.display = 'flex';
+        }
+
+        function deleteTransaction(id) {
+            if (confirm('Supprimer cette transaction ?')) {
+                alert('Transaction supprimée');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('transactionModal').style.display = 'none';
+        }
+
+        function applyFilters() {
+            alert('Filtres appliqués');
+        }
+
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Transaction enregistrée !');
+            closeModal();
+        });
+    </script>
+</body>
+</html>
