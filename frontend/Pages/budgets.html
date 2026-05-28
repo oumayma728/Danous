@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budgets — Danous</title>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --green-dark: #0a2a20; --green-main: #0a4a3a; --green-mid: #0d6b55;
+            --green-light: #e6f9f0; --green-pale: #f0f7f4; --accent: #1db87a;
+            --text: #1a1a2e; --text-muted: #888; --border: #e8e8e8;
+            --bg: #f4f6f5; --white: #fff; --red: #e53935; --red-light: #fdecea;
+            --yellow: #f59e0b; --yellow-light: #fffbeb;
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .nav-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+        .nav-logo-icon { width: 32px; height: 32px; background: var(--green-main); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 15px; }
+        .nav-logo-name { font-weight: 700; font-size: 16px; color: var(--green-dark); }
+        .nav-links { display: flex; gap: 4px; }
+        .nav-link { padding: 6px 14px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--text-muted); text-decoration: none; transition: background .15s, color .15s; }
+        .nav-link:hover, .nav-link.active { background: var(--green-pale); color: var(--green-main); font-weight: 600; }
+        .nav-user { display: flex; align-items: center; gap: 10px; }
+        .nav-user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+        .btn-logout { font-size: 12px; padding: 5px 12px; background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; font-family: inherit; transition: border-color .15s, color .15s; }
+        .btn-logout:hover { border-color: var(--red); color: var(--red); }
+        .page { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+        .page-title { font-size: 22px; font-weight: 700; color: var(--green-dark); }
+        .page-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+        .btn-primary { padding: 9px 18px; background: var(--green-main); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .2s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-primary:hover { background: var(--green-mid); }
+        .budget-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .budget-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 20px; transition: box-shadow .2s; }
+        .budget-card:hover { box-shadow: 0 4px 16px rgba(10,74,58,.08); }
+        .budget-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .budget-card-name { font-size: 15px; font-weight: 700; color: var(--green-dark); }
+        .badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+        .badge-shared { background: #e0f0ff; color: #1565c0; }
+        .badge-personal { background: var(--green-pale); color: var(--green-main); }
+        .badge-weekly { background: #f3e5f5; color: #6a1b9a; }
+        .badge-monthly { background: #e8f5e9; color: #2e7d32; }
+        .badge-custom { background: #fff3e0; color: #e65100; }
+        .budget-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+        .progress-wrap { margin-bottom: 10px; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+        .progress-label span:first-child { color: var(--text-muted); }
+        .progress-label span:last-child { font-weight: 600; color: var(--text); }
+        .progress-bar { height: 6px; background: var(--bg); border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width .4s; }
+        .fill-ok { background: var(--accent); }
+        .fill-warn { background: var(--yellow); }
+        .fill-over { background: var(--red); }
+        .budget-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .budget-dates { font-size: 11px; color: var(--text-muted); }
+        .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 13px; padding: 4px 8px; border-radius: 5px; transition: background .15s, color .15s; font-family: inherit; }
+        .btn-icon:hover { background: var(--red-light); color: var(--red); }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-icon { font-size: 40px; margin-bottom: 12px; }
+        .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        .empty-state p { font-size: 13px; margin-bottom: 20px; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,42,32,.45); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: var(--white); border-radius: 16px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; padding: 28px 28px 24px; box-shadow: 0 20px 60px rgba(0,0,0,.18); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+        .modal-title { font-size: 18px; font-weight: 700; color: var(--green-dark); }
+        .modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--text-muted); line-height: 1; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+        .modal-close:hover { background: var(--bg); }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 5px; }
+        .form-input, .form-select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text); background: #fafafa; outline: none; transition: border-color .2s, background .2s; font-family: inherit; }
+        .form-input:focus, .form-select:focus { border-color: var(--green-main); background: var(--white); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--green-pale); border-radius: 10px; cursor: pointer; }
+        .toggle-label { font-size: 13px; font-weight: 600; color: var(--green-dark); }
+        .toggle-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .toggle { width: 40px; height: 22px; background: var(--border); border-radius: 11px; position: relative; transition: background .2s; flex-shrink: 0; }
+        .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+        .toggle.on { background: var(--green-main); }
+        .toggle.on::after { transform: translateX(18px); }
+        .section-title { font-size: 13px; font-weight: 700; color: var(--green-dark); margin: 20px 0 10px; display: flex; align-items: center; gap: 6px; }
+        .section-title::before { content: ''; display: block; width: 3px; height: 14px; background: var(--green-main); border-radius: 2px; }
+        .cat-cap-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+        .btn-add-cat { background: none; border: 1.5px dashed var(--border); border-radius: 8px; color: var(--text-muted); font-size: 12px; font-weight: 600; padding: 8px; width: 100%; cursor: pointer; font-family: inherit; transition: border-color .15s, color .15s; }
+        .btn-add-cat:hover { border-color: var(--green-main); color: var(--green-main); }
+        .btn-remove-row { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 16px; padding: 4px; border-radius: 5px; transition: color .15s; }
+        .btn-remove-row:hover { color: var(--red); }
+        .members-list { display: flex; flex-direction: column; gap: 8px; }
+        .member-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; transition: border-color .15s, background .15s; }
+        .member-row.selected { border-color: var(--green-main); background: var(--green-pale); }
+        .member-check { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--border); background: var(--white); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .15s, border-color .15s; }
+        .member-row.selected .member-check { background: var(--green-main); border-color: var(--green-main); }
+        .member-check::after { content: '✓'; color: white; font-size: 11px; font-weight: 700; display: none; }
+        .member-row.selected .member-check::after { display: block; }
+        .member-name { font-size: 13px; font-weight: 600; color: var(--text); }
+        .member-email { font-size: 11px; color: var(--text-muted); }
+        .msg { display: none; padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; text-align: center; }
+        .msg.show { display: block; }
+        .msg.success { background: var(--green-light); color: #0a6640; }
+        .msg.error { background: var(--red-light); color: #a32d2d; }
+        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+        .btn-secondary { padding: 9px 18px; background: none; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; font-family: inherit; transition: border-color .15s; }
+        .btn-secondary:hover { border-color: var(--text-muted); }
+        .loader { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; }
+        @media (max-width: 600px) { .page-header { flex-direction: column; align-items: flex-start; gap: 12px; } .form-row { grid-template-columns: 1fr; } .nav-links { display: none; } }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="#" class="nav-logo">
+        <div class="nav-logo-icon">D</div>
+        <span class="nav-logo-name">Danous</span>
+    </a>
+    <div class="nav-links">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="budgets.html" class="nav-link active">Budgets</a>
+        <a href="transcations.html" class="nav-link">Transactions</a>
+    </div>
+    <div class="nav-user">
+        <span class="nav-user-name" id="navUserName">—</span>
+        <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+</nav>
+
+<div class="page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Budgets</h1>
+            <p class="page-sub">Track your spending limits across categories and periods.</p>
+        </div>
+        <button class="btn-primary" onclick="openModal()">＋ New Budget</button>
+    </div>
+    <div id="msg" class="msg"></div>
+    <div id="budgetList" class="loader">Loading budgets…</div>
+</div>
+
+<!-- CREATE MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Create Budget</h2>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div id="modalMsg" class="msg"></div>
+        <form id="budgetForm">
+            <div class="form-group">
+                <label class="form-label">Budget name</label>
+                <input type="text" class="form-input" name="name" placeholder="e.g. Monthly Household" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Period</label>
+                    <select class="form-select" name="period" onchange="toggleCustomDates(this.value)">
+                        <option value="monthly">Monthly</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Global cap (TND)</label>
+                    <input type="number" class="form-input" name="cap_amount" placeholder="0.00" min="0" step="0.01" required>
+                </div>
+            </div>
+            <div class="form-row" id="dateRow">
+                <div class="form-group">
+                    <label class="form-label">Start date</label>
+                    <input type="date" class="form-input" name="start_date" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">End date</label>
+                    <input type="date" class="form-input" name="end_date" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="toggle-row" onclick="toggleShared()">
+                    <div>
+                        <div class="toggle-label">Shared budget</div>
+                        <div class="toggle-sub">Invite other users to this budget</div>
+                    </div>
+                    <div class="toggle" id="sharedToggle"></div>
+                </div>
+            </div>
+            <div id="membersSection" style="display:none">
+                <div class="section-title">Members</div>
+                <div id="membersList" class="members-list">
+                    <p style="font-size:13px;color:var(--text-muted)">Loading users…</p>
+                </div>
+            </div>
+            <div class="section-title">Per-category caps <span style="font-weight:400;color:var(--text-muted);font-size:11px">(optional)</span></div>
+            <div id="catCapsContainer"></div>
+            <button type="button" class="btn-add-cat" onclick="addCatCapRow()">＋ Add category cap</button>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn-primary" id="submitBtn">Create budget</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- BUDGET DETAILS MODAL -->
+<div class="modal-overlay" id="detailsOverlay">
+    <div class="modal" style="max-width:660px">
+        <div class="modal-header">
+            <h2 class="modal-title" id="detailsTitle">Transactions</h2>
+            <button class="modal-close" onclick="closeDetails()">✕</button>
+        </div>
+        <div id="detailsBody"><p style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</p></div>
+    </div>
+</div>
+
+<script>
+const API = 'http://localhost:8080/backend';
+let allUsers = [], allCategories = [], isShared = false;
+let selectedMembers = new Set();
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const name = sessionStorage.getItem('user_name') || localStorage.getItem('user_name');
+    if (!name) { window.location.href = 'login.html'; return; }
+    document.getElementById('navUserName').textContent = name;
+    setDefaultDates();
+    await loadBudgets();
+    await loadCategories();
+    await loadUsers();
+});
+
+function setDefaultDates() {
+    const now = new Date();
+    const y = now.getFullYear(), m = now.getMonth();
+    const start = new Date(y, m, 1);
+    const end = new Date(y, m + 1, 0);
+    const f = d => d.toISOString().split('T')[0];
+    document.querySelector('[name=start_date]').value = f(start);
+    document.querySelector('[name=end_date]').value = f(end);
+}
+
+async function loadBudgets() {
+    const list = document.getElementById('budgetList');
+    try {
+        const res = await fetch(`${API}/budgets/list_budget.php`, { credentials: 'include' });
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+            list.innerHTML = `<div class="empty-state"><div class="empty-icon">💰</div><h3>No budgets yet</h3><p>Create your first budget to start tracking your spending.</p><button class="btn-primary" onclick="openModal()">＋ New Budget</button></div>`;
+            return;
+        }
+        list.innerHTML = `<div class="budget-grid">${data.map(renderCard).join('')}</div>`;
+    } catch (e) {
+        list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Could not load budgets</h3><p>${e.message}</p></div>`;
+    }
+}
+
+function renderCard(b) {
+    const spent = parseFloat(b.spent || 0);
+    const cap = parseFloat(b.cap_amount);
+    const pct = cap > 0 ? Math.min((spent / cap) * 100, 100) : 0;
+    const fillClass = pct >= 100 ? 'fill-over' : pct >= 80 ? 'fill-warn' : 'fill-ok';
+    const typeLabel = b.is_shared ? '👥 Shared' : '👤 Personal';
+    const typeBadge = b.is_shared ? 'badge-shared' : 'badge-personal';
+    return `
+    <div class="budget-card" onclick="openBudgetDetails(${b.id}, '${esc(b.name)}')" style="cursor:pointer">
+        <div class="budget-card-header">
+            <div class="budget-card-name">${esc(b.name)}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <span class="badge badge-${b.period}">${b.period}</span>
+                <span class="badge ${typeBadge}">${typeLabel}</span>
+            </div>
+        </div>
+        <div class="budget-meta">${fmt(b.start_date)} → ${fmt(b.end_date)}</div>
+        <div class="progress-wrap">
+            <div class="progress-label">
+                <span>Spent</span>
+                <span>${fmtMoney(spent)} / ${fmtMoney(cap)} TND</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill ${fillClass}" style="width:${pct}%"></div>
+            </div>
+        </div>
+        <div class="budget-card-footer">
+            <div class="budget-dates">Cap: ${fmtMoney(cap)} TND</div>
+            <button class="btn-icon" onclick="event.stopPropagation(); deleteBudget(${b.id}, '${esc(b.name)}')">🗑 Delete</button>
+        </div>
+    </div>`;
+}
+
+async function loadCategories() {
+    try {
+        const res = await fetch(`${API}/budgets/list_categories.php`, { credentials: 'include' });
+        allCategories = await res.json();
+    } catch { allCategories = []; }
+}
+
+async function loadUsers() {
+    try {
+        const res = await fetch(`${API}/budgets/list_users.php`, { credentials: 'include' });
+        allUsers = await res.json();
+        renderMembersList();
+    } catch { allUsers = []; }
+}
+
+function renderMembersList() {
+    const container = document.getElementById('membersList');
+    const currentId = parseInt(sessionStorage.getItem('user_id') || localStorage.getItem('user_id'));
+    const others = allUsers.filter(u => u.id !== currentId && u.status === 'active');
+    if (others.length === 0) { container.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">No other active users found.</p>'; return; }
+    container.innerHTML = others.map(u => `
+        <div class="member-row ${selectedMembers.has(u.id) ? 'selected' : ''}" onclick="toggleMember(${u.id}, this)">
+            <div class="member-check"></div>
+            <div><div class="member-name">${esc(u.name)}</div><div class="member-email">${esc(u.email)}</div></div>
+            <input type="checkbox" name="members[]" value="${u.id}" style="display:none" ${selectedMembers.has(u.id) ? 'checked' : ''}>
+        </div>`).join('');
+}
+
+function toggleMember(id, row) {
+    if (selectedMembers.has(id)) { selectedMembers.delete(id); row.classList.remove('selected'); }
+    else { selectedMembers.add(id); row.classList.add('selected'); }
+    row.querySelector('input[type=checkbox]').checked = selectedMembers.has(id);
+}
+
+function addCatCapRow() {
+    const container = document.getElementById('catCapsContainer');
+    const options = allCategories.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+    const row = document.createElement('div');
+    row.className = 'cat-cap-row';
+    row.innerHTML = `
+        <select class="form-select" name="category_id[]"><option value="">— Category —</option>${options}</select>
+        <input type="number" class="form-input" name="cat_cap[]" placeholder="Cap" min="0" step="0.01" style="width:100px">
+        <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()">✕</button>`;
+    container.appendChild(row);
+}
+
+function toggleShared() {
+    isShared = !isShared;
+    document.getElementById('sharedToggle').classList.toggle('on', isShared);
+    document.getElementById('membersSection').style.display = isShared ? 'block' : 'none';
+}
+
+function toggleCustomDates(val) {
+    if (val === 'weekly') {
+        const now = new Date(), day = now.getDay();
+        const start = new Date(now); start.setDate(now.getDate() - day);
+        const end = new Date(start); end.setDate(start.getDate() + 6);
+        const f = d => d.toISOString().split('T')[0];
+        document.querySelector('[name=start_date]').value = f(start);
+        document.querySelector('[name=end_date]').value = f(end);
+    } else if (val === 'monthly') { setDefaultDates(); }
+}
+
+function openModal() {
+    selectedMembers.clear(); renderMembersList();
+    document.getElementById('catCapsContainer').innerHTML = '';
+    document.getElementById('budgetForm').reset();
+    setDefaultDates(); isShared = false;
+    document.getElementById('sharedToggle').classList.remove('on');
+    document.getElementById('membersSection').style.display = 'none';
+    document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); showModalMsg('', ''); }
+document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === document.getElementById('modalOverlay')) closeModal(); });
+
+document.getElementById('budgetForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Creating…';
+    const data = new FormData(e.target);
+    data.set('is_shared', isShared ? '1' : '0');
+    try {
+        const res = await fetch(`${API}/budgets/create_budget.php`, { method: 'POST', body: data, credentials: 'include' });
+        const json = await res.json();
+        if (json.success) { showModalMsg('Budget created!', 'success'); setTimeout(() => { closeModal(); loadBudgets(); }, 800); }
+        else showModalMsg(json.message || 'Error creating budget.', 'error');
+    } catch (err) { showModalMsg('Network error: ' + err.message, 'error'); }
+    btn.disabled = false; btn.textContent = 'Create budget';
+});
+
+async function deleteBudget(id, name) {
+    if (!confirm(`Delete budget "${name}"?`)) return;
+    try {
+        const fd = new FormData(); fd.append('budget_id', id);
+        const res = await fetch(`${API}/budgets/delete_budget.php`, { method: 'POST', body: fd, credentials: 'include' });
+        const json = await res.json();
+        if (json.success) loadBudgets();
+        else alert(json.message || 'Could not delete.');
+    } catch (e) { alert('Network error.'); }
+}
+
+// ── BUDGET DETAILS ──
+async function openBudgetDetails(id, name) {
+    document.getElementById('detailsTitle').textContent = name + ' — Transactions';
+    document.getElementById('detailsBody').innerHTML = '<p style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</p>';
+    document.getElementById('detailsOverlay').classList.add('open');
+    try {
+        const res = await fetch(`${API}/transactions/list_transactions.php?budget_id=${id}`, { credentials: 'include' });
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+            document.getElementById('detailsBody').innerHTML = '<p style="text-align:center;padding:30px;color:var(--text-muted)">No transactions for this budget yet.</p>';
+            return;
+        }
+        const total = data.reduce((s, t) => t.type === 'expense' ? s + parseFloat(t.amount) : s, 0);
+        document.getElementById('detailsBody').innerHTML = `
+            <table style="width:100%;border-collapse:collapse">
+                <thead><tr>
+                    <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text-muted);border-bottom:1px solid var(--border)">Date</th>
+                    <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text-muted);border-bottom:1px solid var(--border)">Description</th>
+                    <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text-muted);border-bottom:1px solid var(--border)">Category</th>
+                    <th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text-muted);border-bottom:1px solid var(--border)">By</th>
+                    <th style="text-align:right;padding:8px 10px;font-size:11px;color:var(--text-muted);border-bottom:1px solid var(--border)">Amount</th>
+                </tr></thead>
+                <tbody>
+                    ${data.map(t => `
+                    <tr>
+                        <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px">${fmt(t.date)}</td>
+                        <td style="padding:8px 10px;border-bottom:1px solid var(--border)">${esc(t.description || '—')}</td>
+                        <td style="padding:8px 10px;border-bottom:1px solid var(--border)"><span class="badge">${esc(t.category_name || '—')}</span></td>
+                        <td style="padding:8px 10px;border-bottom:1px solid var(--border);font-weight:600">${esc(t.user_name || '—')}</td>
+                        <td style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;font-weight:700;color:${t.type === 'expense' ? 'var(--red)' : '#0a6640'}">${t.type === 'expense' ? '−' : '+'}${fmtMoney(t.amount)} TND</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>
+            <div style="text-align:right;font-size:13px;font-weight:700;color:var(--red);padding:14px 10px 0">
+                Total spent: ${fmtMoney(total)} TND
+            </div>`;
+    } catch (e) {
+        document.getElementById('detailsBody').innerHTML = `<p style="color:var(--red);padding:20px">Error: ${e.message}</p>`;
+    }
+}
+function closeDetails() { document.getElementById('detailsOverlay').classList.remove('open'); }
+document.getElementById('detailsOverlay').addEventListener('click', e => { if (e.target === document.getElementById('detailsOverlay')) closeDetails(); });
+
+async function logout() {
+    await fetch(`${API}/auth/logout.php`, { credentials: 'include' });
+    sessionStorage.clear(); localStorage.clear();
+    window.location.href = 'login.html';
+}
+
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmt(d) { return d ? new Date(d).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) : '—'; }
+function fmtMoney(n) { return parseFloat(n||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function showModalMsg(text, type) { const el = document.getElementById('modalMsg'); el.textContent = text; el.className = 'msg' + (type ? ' show ' + type : ''); }
+</script>
+</body>
+</html>

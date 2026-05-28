@@ -96,8 +96,8 @@ $_SESSION['user_name'] = $user['name'];
 $_SESSION['user_role'] = $user['role'];
 
 $redirect = ($user['role'] === 'admin')
-    ? '../../frontend/pages/admin.html'
-    : '../../frontend/pages/dashboard.html';
+    ? '../../frontend/Pages/admin.html'
+    : '../../frontend/Pages/budgets.html';
 
 echo json_encode([
     "success" => true,

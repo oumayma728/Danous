@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             try {
                 console.log('Sending fetch request...');
-                const res = await fetch('http://localhost/Danous/backend/auth/login.php', {
+                const res = await fetch('http://localhost:8080/backend/auth/login.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -47,6 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     console.log('Login successful!');
+                    sessionStorage.setItem('user_name', data.user.name);
+                    sessionStorage.setItem('user_role', data.user.role);
+                    sessionStorage.setItem('user_id', data.user.id);
                     showMsg('Login successful! Redirecting...', 'success');
                     setTimeout(() => window.location.href = data.redirect, 800);
                 } else {
@@ -74,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.textContent = 'Creating account...';
 
             const formData = new FormData(registerForm);
-            const res = await fetch('http://localhost/Danous/backend/auth/register.php', { 
+            const res = await fetch('http://localhost:8080/backend/auth/register.php', { 
                 method: 'POST', 
                 body: formData 
             });
@@ -91,3 +94,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
