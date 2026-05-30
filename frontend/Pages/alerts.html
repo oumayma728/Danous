@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts — Danous</title>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --green-dark: #0a2a20; --green-main: #0a4a3a; --green-mid: #0d6b55;
+            --green-light: #e6f9f0; --green-pale: #f0f7f4; --accent: #1db87a;
+            --text: #1a1a2e; --text-muted: #888; --border: #e8e8e8;
+            --bg: #f4f6f5; --white: #fff;
+            --red: #e53935; --red-light: #fdecea;
+            --yellow: #f59e0b; --yellow-light: #fffbeb;
+            --blue: #1565c0; --blue-light: #e0f0ff;
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .nav-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+        .nav-logo-icon { width: 32px; height: 32px; background: var(--green-main); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 15px; }
+        .nav-logo-name { font-weight: 700; font-size: 16px; color: var(--green-dark); }
+        .nav-links { display: flex; gap: 4px; }
+        .nav-link { padding: 6px 14px; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--text-muted); text-decoration: none; transition: background .15s, color .15s; }
+        .nav-link:hover, .nav-link.active { background: var(--green-pale); color: var(--green-main); font-weight: 600; }
+        .nav-user { display: flex; align-items: center; gap: 10px; }
+        .nav-user-name { font-size: 13px; font-weight: 600; }
+        .btn-logout { font-size: 12px; padding: 5px 12px; background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; font-family: inherit; }
+        .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+        .page { max-width: 800px; margin: 0 auto; padding: 32px 20px; }
+        .page-header { margin-bottom: 28px; }
+        .page-title { font-size: 22px; font-weight: 700; color: var(--green-dark); }
+        .page-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+        /* SUMMARY STRIP */
+        .summary-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+        .strip-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; }
+        .strip-icon { font-size: 24px; }
+        .strip-count { font-size: 24px; font-weight: 700; }
+        .strip-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .strip-ok .strip-count { color: var(--accent); }
+        .strip-warn .strip-count { color: var(--yellow); }
+        .strip-over .strip-count { color: var(--red); }
+
+        /* ALERT CARDS */
+        .alert-list { display: flex; flex-direction: column; gap: 14px; }
+        .alert-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 20px; border-left: 4px solid var(--border); }
+        .alert-card.ok { border-left-color: var(--accent); }
+        .alert-card.warning { border-left-color: var(--yellow); }
+        .alert-card.exceeded { border-left-color: var(--red); }
+
+        .alert-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .alert-name { font-size: 15px; font-weight: 700; color: var(--green-dark); }
+        .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .status-badge.ok { background: var(--green-light); color: #0a6640; }
+        .status-badge.warning { background: var(--yellow-light); color: #b45309; }
+        .status-badge.exceeded { background: var(--red-light); color: var(--red); }
+
+        .alert-progress { margin-bottom: 12px; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+        .progress-label span:first-child { color: var(--text-muted); }
+        .progress-label span:last-child { font-weight: 700; }
+        .progress-bar { height: 8px; background: var(--bg); border-radius: 10px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width .4s; }
+        .fill-ok { background: var(--accent); }
+        .fill-warn { background: var(--yellow); }
+        .fill-over { background: var(--red); }
+
+        /* threshold marker */
+        .progress-bar .threshold-marker {
+            position: absolute; top: 0; height: 100%;
+            width: 2px; background: rgba(0,0,0,.2);
+        }
+
+        .alert-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+        .alert-triggered { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-icon { font-size: 40px; margin-bottom: 12px; }
+        .empty-state h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+
+        .loader { text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px; }
+
+        @media (max-width: 600px) { .summary-strip { grid-template-columns: 1fr; } .nav-links { display: none; } }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="#" class="nav-logo">
+        <div class="nav-logo-icon">D</div>
+        <span class="nav-logo-name">Danous</span>
+    </a>
+    <div class="nav-links">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="budgets.html" class="nav-link">Budgets</a>
+        <a href="transcations.html" class="nav-link">Transactions</a>
+        <a href="alerts.html" class="nav-link active">Alerts</a>
+    </div>
+    <div class="nav-user">
+        <span class="nav-user-name" id="navUserName">—</span>
+        <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+</nav>
+
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">🔔 Alerts & Tracking</h1>
+        <p class="page-sub">Monitor your budget health and spending status in real time.</p>
+    </div>
+
+    <!-- Summary strip -->
+    <div class="summary-strip">
+        <div class="strip-card strip-ok">
+            <div class="strip-icon">✅</div>
+            <div>
+                <div class="strip-count" id="countOk">—</div>
+                <div class="strip-label">On track</div>
+            </div>
+        </div>
+        <div class="strip-card strip-warn">
+            <div class="strip-icon">⚠️</div>
+            <div>
+                <div class="strip-count" id="countWarn">—</div>
+                <div class="strip-label">Near limit</div>
+            </div>
+        </div>
+        <div class="strip-card strip-over">
+            <div class="strip-icon">🚨</div>
+            <div>
+                <div class="strip-count" id="countOver">—</div>
+                <div class="strip-label">Exceeded</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertList" class="loader">Loading alerts…</div>
+</div>
+
+<script>
+const API = 'http://localhost:8080/backend';
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const name = sessionStorage.getItem('user_name') || localStorage.getItem('user_name');
+    if (!name) { window.location.href = 'login.html'; return; }
+    document.getElementById('navUserName').textContent = name;
+    await loadAlerts();
+});
+
+async function loadAlerts() {
+    const list = document.getElementById('alertList');
+    try {
+        const res = await fetch(`${API}/alerts/get_alerts.php`, { credentials: 'include' });
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔔</div><h3>No budgets to track</h3><p>Create a budget first to start tracking alerts.</p></div>`;
+            document.getElementById('countOk').textContent = 0;
+            document.getElementById('countWarn').textContent = 0;
+            document.getElementById('countOver').textContent = 0;
+            return;
+        }
+
+        // Update summary counts
+        document.getElementById('countOk').textContent   = data.filter(a => a.status === 'ok').length;
+        document.getElementById('countWarn').textContent = data.filter(a => a.status === 'warning').length;
+        document.getElementById('countOver').textContent = data.filter(a => a.status === 'exceeded').length;
+
+        // Sort: exceeded first, then warning, then ok
+        const order = { exceeded: 0, warning: 1, ok: 2 };
+        data.sort((a, b) => order[a.status] - order[b.status]);
+
+        list.innerHTML = `<div class="alert-list">${data.map(renderAlert).join('')}</div>`;
+    } catch (e) {
+        list.innerHTML = `<p style="color:var(--red);padding:20px">Error: ${e.message}</p>`;
+    }
+}
+
+function renderAlert(a) {
+    const pct = Math.min(parseFloat(a.pct), 100);
+    const fillClass = a.status === 'exceeded' ? 'fill-over' : a.status === 'warning' ? 'fill-warn' : 'fill-ok';
+    const statusLabel = a.status === 'exceeded' ? '🚨 Exceeded' : a.status === 'warning' ? '⚠️ Near limit' : '✅ On track';
+    const thresholdLeft = Math.min(parseFloat(a.threshold_pct), 100);
+
+    const triggeredMsg = a.triggered_at
+        ? `<div class="alert-triggered">Alert triggered: ${new Date(a.triggered_at).toLocaleString('en-GB')}</div>`
+        : '';
+
+    return `
+    <div class="alert-card ${a.status}">
+        <div class="alert-header">
+            <div class="alert-name">${esc(a.budget_name)}</div>
+            <span class="status-badge ${a.status}">${statusLabel}</span>
+        </div>
+        <div class="alert-progress">
+            <div class="progress-label">
+                <span>Spent: ${fmtMoney(a.spent)} / ${fmtMoney(a.cap_amount)} TND</span>
+                <span style="color:${a.status === 'exceeded' ? 'var(--red)' : a.status === 'warning' ? 'var(--yellow)' : 'var(--accent)'}">${pct}%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill ${fillClass}" style="width:${pct}%"></div>
+                <div class="threshold-marker" style="left:${thresholdLeft}%" title="Alert threshold: ${a.threshold_pct}%"></div>
+            </div>
+        </div>
+        <div class="alert-meta">
+            <span>Alert threshold: ${a.threshold_pct}%</span>
+            <span>Remaining: ${fmtMoney(Math.max(0, a.cap_amount - a.spent))} TND</span>
+        </div>
+        ${triggeredMsg}
+    </div>`;
+}
+
+async function logout() {
+    await fetch(`${API}/auth/logout.php`, { credentials: 'include' });
+    sessionStorage.clear(); localStorage.clear();
+    window.location.href = 'login.html';
+}
+
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtMoney(n) { return parseFloat(n||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+</script>
+</body>
+</html>
