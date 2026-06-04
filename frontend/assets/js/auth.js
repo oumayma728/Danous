@@ -1,13 +1,6 @@
-console.log('auth.js loaded successfully');
-
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM Content Loaded');
-    
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
-    
-    console.log('loginForm found:', loginForm);
-    console.log('registerForm found:', registerForm);
 
     function showMsg(text, type) {
         const msg = document.getElementById('msg');
@@ -16,82 +9,77 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         msg.classList.remove('hidden');
-        msg.textContent = text;
+        msg.textContent = text || 'Une erreur est survenue';
         msg.className = 'msg ' + type;
-        console.log('Message shown:', text, type);
+        msg.classList.add('show');
     }
 
     if (loginForm) {
-        console.log('Adding login event listener');
         loginForm.addEventListener('submit', async (e) => {
-            console.log('Login form submitted - event triggered!');
             e.preventDefault();
             
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.textContent = 'Signing in...';
+            btn.textContent = 'Connexion...';
 
-            const formData = new FormData(loginForm);
-            console.log('Form data being sent:', Array.from(formData.entries()));
-            
             try {
-                console.log('Sending fetch request...');
-                const res = await fetch('http://localhost:8080/backend/auth/login.php', {
+                const formData = new FormData(loginForm);
+                const res = await fetch('../../backend/api/auth/login.php', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    credentials: 'same-origin'
                 });
                 
-                console.log('Response status:', res.status);
                 const data = await res.json();
-                console.log('Response data:', data);
 
                 if (data.success) {
-                    console.log('Login successful!');
-                    sessionStorage.setItem('user_name', data.user.name);
-                    sessionStorage.setItem('user_role', data.user.role);
-                    sessionStorage.setItem('user_id', data.user.id);
-                    showMsg('Login successful! Redirecting...', 'success');
+                    if (data.user) {
+                        sessionStorage.setItem('user_name', data.user.name || '');
+                        sessionStorage.setItem('user_role', data.user.role || '');
+                        sessionStorage.setItem('user_id', data.user.id || '');
+                    }
+                    showMsg('Connexion réussie ! Redirection...', 'success');
                     setTimeout(() => window.location.href = data.redirect, 800);
                 } else {
-                    console.log('Login failed:', data.message);
                     showMsg(data.message, 'error');
                     btn.disabled = false;
-                    btn.textContent = 'Sign in';
+                    btn.textContent = 'Se connecter';
                 }
             } catch (error) {
-                console.error('Fetch error:', error);
-                showMsg('Network error: ' + error.message, 'error');
+                showMsg('Erreur réseau : ' + error.message, 'error');
                 btn.disabled = false;
-                btn.textContent = 'Sign in';
+                btn.textContent = 'Se connecter';
             }
         });
     }
 
     if (registerForm) {
-        console.log('Adding register event listener');
         registerForm.addEventListener('submit', async (e) => {
-            console.log('Register form submitted');
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.textContent = 'Creating account...';
+            btn.textContent = 'Création du compte...';
 
-            const formData = new FormData(registerForm);
-            const res = await fetch('http://localhost:8080/backend/auth/register.php', { 
-                method: 'POST', 
-                body: formData 
-            });
-            const data = await res.json();
+            try {
+                const formData = new FormData(registerForm);
+                const res = await fetch('../../backend/api/auth/register.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
 
-            if (data.success) {
-                showMsg(data.message, 'success');
-                registerForm.reset();
-            } else {
-                showMsg(data.message, 'error');
+                if (data.success) {
+                    showMsg(data.message, 'success');
+                    registerForm.reset();
+                } else {
+                    showMsg(data.message, 'error');
+                }
+            } catch (error) {
+                showMsg('Erreur réseau : ' + error.message, 'error');
             }
+
             btn.disabled = false;
-            btn.textContent = 'Create account';
+            btn.textContent = 'Créer un compte';
         });
     }
 });
-

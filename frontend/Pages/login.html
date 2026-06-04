@@ -1,10 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — Danous</title>
+    <title>Connexion - Danous</title>
     <style>
+        :root {
+            --ink: #10231c;
+            --muted: #66736c;
+            --line: #dfe7e2;
+            --panel: #ffffff;
+            --soft: #f4f7f5;
+            --green: #0a4a3a;
+            --green-light: #0f6b54;
+            --amber: #d7953a;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,218 +23,478 @@
         }
 
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: #f4f6f5;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 24px;
+            background:
+                linear-gradient(135deg, rgba(10, 74, 58, 0.08), transparent 35%),
+                linear-gradient(315deg, rgba(215, 149, 58, 0.15), transparent 38%),
+                #f5f7f4;
+            color: var(--ink);
+            font-family: Inter, system-ui, sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(16, 35, 28, 0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 35, 28, 0.045) 1px, transparent 1px);
+            background-size: 44px 44px;
+            pointer-events: none;
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), transparent);
         }
 
         .auth-container {
             width: 100%;
-            max-width: 400px;
-            padding: 16px;
+            max-width: 980px;
+            position: relative;
+            z-index: 1;
         }
 
-        .auth-card {
-            background: #fff;
-            border-radius: 14px;
-            border: 1px solid #e8e8e8;
-            padding: 36px 32px;
+        .auth-shell {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 430px;
+            min-height: 620px;
+            background: rgba(255, 255, 255, 0.76);
+            border: 1px solid rgba(223, 231, 226, 0.95);
+            border-radius: 28px;
+            box-shadow: 0 24px 70px rgba(16, 35, 28, 0.14);
+            overflow: hidden;
+            backdrop-filter: blur(14px);
         }
 
-        /* Logo */
+        .auth-visual {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 32px;
+            padding: 38px;
+            background:
+                linear-gradient(160deg, rgba(10, 74, 58, 0.96), rgba(15, 107, 84, 0.9)),
+                #0a4a3a;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-visual::after {
+            content: "";
+            position: absolute;
+            inset: auto -20% -22% 10%;
+            height: 46%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(215, 149, 58, 0.22));
+            transform: skewY(-8deg);
+        }
+
+        .brand-lockup,
+        .visual-copy,
+        .preview-card {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-lockup,
         .auth-logo {
             display: flex;
             align-items: center;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 24px;
-        }
-        .auth-logo-icon {
-            width: 38px;
-            height: 38px;
-            background: #0a4a3a;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: 700;
-            font-size: 17px;
-        }
-        .auth-logo-name {
-            font-weight: 700;
-            font-size: 18px;
-            color: #0a2a20;
-            line-height: 1.1;
-        }
-        .auth-logo-sub {
-            font-size: 10px;
-            color: #aaa;
-            letter-spacing: .5px;
-        }
-
-        /* Headings */
-        .auth-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #0a2a20;
-            text-align: center;
-            margin-bottom: 4px;
-        }
-        .auth-subtitle {
-            font-size: 13px;
-            color: #999;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        /* Form */
-        .form-group {
-            margin-bottom: 14px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #555;
-            margin-bottom: 5px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1.5px solid #e8e8e8;
-            border-radius: 8px;
-            font-size: 13px;
-            color: #1a1a2e;
-            background: #fafafa;
-            outline: none;
-            transition: border-color .2s, background .2s;
-            font-family: inherit;
-        }
-        .form-group input:focus {
-            border-color: #0a4a3a;
-            background: #fff;
-        }
-
-        .input-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
+        .brand-mark,
+        .auth-logo-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .brand-mark {
+            background: #fff;
+            color: var(--green);
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+        }
+
+        .brand-name {
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .brand-sub,
+        .auth-logo-sub {
+            margin-top: 4px;
+            font-size: 11px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .brand-sub {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .visual-copy {
+            max-width: 360px;
+        }
+
+        .visual-copy h2 {
+            font-size: 34px;
+            line-height: 1.08;
+            margin-bottom: 14px;
+            letter-spacing: 0;
+        }
+
+        .visual-copy p {
+            color: rgba(255, 255, 255, 0.74);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .preview-card {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+        }
+
+        .preview-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .preview-label {
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .preview-amount {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .preview-pill {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .bar-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .bar-row {
+            display: grid;
+            grid-template-columns: 82px 1fr 46px;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .bar-track {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.16);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: #ffffff;
+        }
+
+        .bar-fill.food { width: 72%; }
+        .bar-fill.rent { width: 58%; background: #e9b76b; }
+        .bar-fill.travel { width: 34%; background: #9ed8c5; }
+
+        .auth-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 54px 46px;
+            background: var(--panel);
+        }
+
+        .auth-logo {
+            margin-bottom: 34px;
+        }
+
+        .auth-logo-icon {
+            background: var(--green);
+            color: #fff;
+            box-shadow: 0 12px 26px rgba(10, 74, 58, 0.24);
+        }
+
+        .auth-logo-name {
+            color: var(--ink);
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .auth-logo-sub {
+            color: var(--muted);
+        }
+
+        .auth-title {
+            margin-bottom: 8px;
+            color: var(--ink);
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .auth-subtitle {
+            margin-bottom: 28px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            color: #33433b;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1.5px solid var(--line);
+            border-radius: 10px;
+            background: var(--soft);
+            color: #1a1a2e;
+            font: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color .2s, background .2s, box-shadow .2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--green);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(10, 74, 58, 0.1);
+        }
+
         .auth-forgot {
+            margin: -4px 0 18px;
             text-align: right;
-            margin: -6px 0 14px;
             font-size: 12px;
         }
-        .auth-forgot a {
-            color: #0a4a3a;
-            font-weight: 500;
+
+        .auth-forgot a,
+        .auth-link a {
+            color: var(--green);
+            font-weight: 800;
             text-decoration: none;
         }
 
-        /* Button */
+        .auth-forgot a:hover,
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+
         .btn-primary {
             width: 100%;
-            padding: 11px;
-            background: #0a4a3a;
+            padding: 13px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--green);
             color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
+            box-shadow: 0 14px 28px rgba(10, 74, 58, 0.22);
             cursor: pointer;
-            transition: background .2s;
-            font-family: inherit;
-        }
-        .btn-primary:hover    { background: #0d6b55; }
-        .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
-
-        /* Messages */
-        .msg { 
-            display: none; 
-            padding: 10px 12px; 
-            border-radius: 8px; 
-            font-size: 13px; 
-            margin-bottom: 16px; 
-            text-align: center; 
-        }
-        .msg.show         { display: block; }
-        .msg.success      { background: #e6f9f0; color: #0a6640; }
-        .msg.error        { background: #fdecea; color: #a32d2d; }
-
-        .auth-pending-note {
-            background: #f0f7f4;
-            border-radius: 8px;
-            padding: 9px 12px;
-            font-size: 12px;
-            color: #0a4a3a;
-            text-align: center;
-            margin-top: 12px;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 800;
+            transition: background .2s, transform .2s, box-shadow .2s;
         }
 
-        /* Footer link */
-        .auth-link {
-            text-align: center;
-            margin-top: 18px;
+        .btn-primary:hover {
+            background: var(--green-light);
+            transform: translateY(-1px);
+            box-shadow: 0 18px 34px rgba(10, 74, 58, 0.26);
+        }
+
+        .btn-primary:disabled {
+            background: #9aa5a0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .msg {
+            display: none;
+            margin-bottom: 18px;
+            padding: 11px 12px;
+            border: 1px solid transparent;
+            border-radius: 10px;
             font-size: 13px;
-            color: #999;
+            text-align: center;
         }
-        .auth-link a {
-            color: #0a4a3a;
-            font-weight: 600;
-            text-decoration: none;
-        }
-        .auth-link a:hover { text-decoration: underline; }
 
-        /* Responsive */
-        @media (max-width: 480px) {
-            .auth-card  { padding: 28px 20px; }
-            .input-row  { grid-template-columns: 1fr; }
+        .msg.show { display: block; }
+        .msg.success { background: #e6f9f0; color: #0a6640; border-color: #bce8d2; }
+        .msg.error { background: #fdecea; color: #a32d2d; border-color: #f3c4bf; }
+
+        .auth-link {
+            margin-top: 22px;
+            color: var(--muted);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        @media (max-width: 820px) {
+            body {
+                align-items: flex-start;
+                padding: 16px;
+            }
+
+            .auth-shell {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .auth-visual {
+                padding: 28px;
+            }
+
+            .visual-copy h2 {
+                font-size: 28px;
+            }
+
+            .auth-card {
+                padding: 34px 26px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .auth-visual {
+                display: none;
+            }
+
+            .auth-shell {
+                border-radius: 20px;
+            }
+
+            .auth-card {
+                padding: 32px 22px;
+            }
+
+            .auth-title {
+                font-size: 26px;
+            }
         }
     </style>
+    <link rel="stylesheet" href="../assets/css/theme.css">
 </head>
 <body>
     <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-logo">
-                <div class="auth-logo-icon">D</div>
-                <div class="auth-logo-name">
-                    Danous<br>
-                    <span class="auth-logo-sub">budget flow</span>
+        <main class="auth-shell">
+            <section class="auth-visual" aria-label="Aperçu Danous">
+                <div class="brand-lockup">
+                    <div class="brand-mark">D</div>
+                    <div>
+                        <div class="brand-name">Danous</div>
+                        <div class="brand-sub">gestion budget</div>
+                    </div>
                 </div>
-            </div>
-            
-            <h1 class="auth-title">Welcome back</h1>
-            <p class="auth-subtitle">Sign in to your account</p>
-            
-            <div id="msg" class="msg"></div>
-            
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Email address</label>
-                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+
+                <div class="visual-copy">
+                    <h2>Bienvenue dans votre espace budget.</h2>
+                    <p>Organisez vos dépenses, revenus et budgets partagés au même endroit.</p>
                 </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+                <div class="preview-card" aria-hidden="true">
+                    <div class="preview-top">
+                        <div>
+                            <div class="preview-label">Solde mensuel</div>
+                            <div class="preview-amount">2,480 DINAR</div>
+                        </div>
+                        <div class="preview-pill">+12%</div>
+                    </div>
+                    <div class="bar-list">
+                        <div class="bar-row">
+                            <span>Courses</span>
+                            <div class="bar-track"><div class="bar-fill food"></div></div>
+                            <span>72%</span>
+                        </div>
+                        <div class="bar-row">
+                            <span>Loyer</span>
+                            <div class="bar-track"><div class="bar-fill rent"></div></div>
+                            <span>58%</span>
+                        </div>
+                        <div class="bar-row">
+                            <span>Voyage</span>
+                            <div class="bar-track"><div class="bar-fill travel"></div></div>
+                            <span>34%</span>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="auth-forgot">
-                    <a href="#">Forgot password?</a>
+            </section>
+
+            <section class="auth-card" aria-label="Formulaire de connexion">
+                <div class="auth-logo">
+                    <div class="auth-logo-icon">D</div>
+                    <div class="auth-logo-name">
+                        Danous<br>
+                        <span class="auth-logo-sub">gestion budget</span>
+                    </div>
                 </div>
-                
-                <button type="submit" class="btn-primary" id="submitBtn">Sign in</button>
-            </form>
-            
-            <p class="auth-link">No account yet? <a href="register.html">Create account</a></p>
-        </div>
+
+                <h1 class="auth-title">Bienvenue</h1>
+                <p class="auth-subtitle">Connectez-vous pour accéder à votre tableau de bord.</p>
+
+                <div id="msg" class="msg"></div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Adresse e-mail</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Mot de passe</label>
+                        <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe" autocomplete="current-password" required>
+                    </div>
+
+                    <div class="auth-forgot">
+                        <a href="#">Mot de passe oublié ?</a>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="submitBtn">Se connecter</button>
+                </form>
+
+                <p class="auth-link">Pas encore de compte ? <a href="register.html">Créer un compte</a></p>
+            </section>
+        </main>
     </div>
-    
-    <script src="../assets/js/auth.js"></script>
+
+    <script src="../assets/js/auth.js?v=20260603"></script>
+    <script src="../assets/js/theme.js"></script>
 </body>
 </html>

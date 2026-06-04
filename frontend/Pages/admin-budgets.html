@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Gestion des utilisateurs - Danous</title>
+    <title>Admin - Budgets partag&eacute;s - Danous</title>
     <link rel="stylesheet" href="../assets/css/dashboard-shell.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="../assets/css/theme.css">
     <script src="../assets/js/admin.js" defer></script>
 </head>
-<body class="app-shell" data-admin-page="users">
+<body class="app-shell" data-admin-page="budgets">
 <nav class="nav">
     <a href="admin.html" class="nav-logo">
         <div class="nav-logo-icon">D</div>
@@ -33,15 +33,15 @@
 <main class="page">
     <div class="page-header">
         <div>
-            <h1 class="page-title">Gestion des utilisateurs</h1>
-            <p class="page-sub" id="lastUpdated">Voir les comptes, valider les inscriptions et approuver les suppressions.</p>
+            <h1 class="page-title">Consultation des budgets partag&eacute;s</h1>
+            <p class="page-sub" id="lastUpdated">Vue en lecture seule de tous les budgets partag&eacute;s.</p>
         </div>
         <div class="toolbar">
             <button class="btn-secondary" onclick="loadAdminData()">Actualiser</button>
         </div>
     </div>
     <div id="msg" class="msg"></div>
-    <div id="adminContent" class="loader">Chargement des utilisateurs...</div>
+    <div id="adminContent" class="loader">Chargement des budgets...</div>
 </main>
 <script src="../assets/js/theme.js"></script>
 </body>

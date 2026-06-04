@@ -8,7 +8,8 @@ CREATE TABLE users(
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
     status ENUM('pending', 'active', 'disabled') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login_at DATETIME DEFAULT NULL
 );
 -- category table
 CREATE TABLE categories(
@@ -78,4 +79,16 @@ CREATE TABLE alerts (
     status ENUM('ok', 'warning', 'exceeded') DEFAULT 'ok',
     triggered_at DATETIME DEFAULT NULL,
     FOREIGN KEY (budget_id) REFERENCES budgets(id) ON DELETE CASCADE
+);
+
+CREATE TABLE deletion_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    reason VARCHAR(255) DEFAULT NULL,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    requested_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    reviewed_at DATETIME DEFAULT NULL,
+    reviewed_by INT DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL
 );

@@ -3,241 +3,559 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danous - Gestion de Budget Collaborative</title>
+    <title>Danous - Gestion de budget intelligente</title>
     <style>
-        * {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: #f4f6f5;
-            color: #1a1a2e;
+        :root {
+            --green-dark: #0a2a20;
+            --green-main: #0a4a3a;
+            --green-mid: #0d6b55;
+            --green-pale: #f0f7f4;
+            --accent: #1db87a;
+            --ink: #15231d;
+            --muted: #66736c;
+            --line: #e2e8e4;
+            --bg: #f5f7f4;
+            --panel: #ffffff;
+            --amber: #d7953a;
+            --blue: #276a9b;
         }
 
-        /* Navigation */
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: Inter, system-ui, sans-serif;
+        }
+
         .navbar {
-            background: #0a4a3a;
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             position: fixed;
-            width: 100%;
-            top: 0;
+            inset: 0 0 auto;
             z-index: 1000;
+            min-height: 68px;
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            background: rgba(7, 24, 18, .84);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, .12);
+            color: #fff;
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
         }
 
-        .logo span {
-            font-size: 0.8rem;
-            font-weight: normal;
-            color: #ccc;
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: var(--green-main);
+            font-weight: 900;
+        }
+
+        .logo span:last-child {
+            display: block;
+            color: rgba(255, 255, 255, .66);
+            font-size: 11px;
+            font-weight: 500;
+            margin-top: 1px;
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
             align-items: center;
+            gap: 8px;
         }
 
         .nav-links a {
-            color: white;
+            color: rgba(255, 255, 255, .86);
             text-decoration: none;
-            transition: opacity 0.2s;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 11px;
+            border-radius: 8px;
+            white-space: nowrap;
+            transition: background .15s, color .15s, border-color .15s;
         }
 
         .nav-links a:hover {
-            opacity: 0.8;
+            background: rgba(255, 255, 255, .12);
+            color: #fff;
         }
 
-        .btn-outline {
-            border: 1px solid white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+        .nav-links .btn-login {
+            border: 1px solid rgba(255, 255, 255, .36);
         }
 
-        .btn-primary {
-            background: #0d6b55;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
+        .nav-links .btn-client {
+            background: #fff;
+            color: var(--green-main);
         }
 
-        /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, #0a4a3a 0%, #0d6b55 100%);
-            color: white;
-            padding: 120px 2rem 80px;
-            text-align: center;
+            position: relative;
+            min-height: 78vh;
+            display: flex;
+            align-items: center;
+            padding: 132px 28px 82px;
+            background-image: url("https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1800&q=80");
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(3, 21, 15, .64);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            width: min(760px, 100%);
+            margin-left: max(0px, calc((100vw - 1180px) / 2));
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            color: #bff4dc;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 26px;
+            height: 2px;
+            border-radius: 999px;
+            background: #bff4dc;
         }
 
         .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            max-width: 680px;
+            color: #fff;
+            font-size: clamp(42px, 7vw, 86px);
+            font-weight: 900;
+            line-height: .95;
+            letter-spacing: 0;
+            margin-bottom: 18px;
         }
 
         .hero p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            max-width: 620px;
+            color: rgba(255, 255, 255, .88);
+            font-size: clamp(16px, 2.1vw, 21px);
+            line-height: 1.55;
+            margin-bottom: 28px;
         }
 
-        .hero-buttons {
+        .hero-actions {
             display: flex;
-            gap: 1rem;
-            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 34px;
         }
 
         .btn-large {
-            padding: 0.8rem 2rem;
-            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 46px;
+            padding: 0 18px;
             border-radius: 8px;
+            color: #fff;
             text-decoration: none;
-            transition: transform 0.2s;
+            font-size: 14px;
+            font-weight: 800;
         }
 
-        .btn-large:hover {
-            transform: translateY(-2px);
+        .btn-large.primary {
+            background: #fff;
+            color: var(--green-main);
         }
 
-        .btn-light {
-            background: white;
-            color: #0a4a3a;
+        .btn-large.secondary {
+            border: 1px solid rgba(255, 255, 255, .48);
+            background: rgba(255, 255, 255, .08);
         }
 
-        .btn-outline-light {
-            border: 2px solid white;
-            color: white;
+        .hero-points {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            color: rgba(255, 255, 255, .78);
+            font-size: 13px;
+            font-weight: 700;
         }
 
-        /* Features */
-        .features {
-            padding: 4rem 2rem;
-            max-width: 1200px;
+        .hero-point {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-point::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .section {
+            width: min(1180px, calc(100% - 40px));
             margin: 0 auto;
+            padding: 64px 0;
         }
 
-        .features h2 {
-            text-align: center;
-            margin-bottom: 3rem;
-            color: #0a2a20;
+        .section-head {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 24px;
         }
 
-        .features-grid {
+        .section-kicker {
+            color: var(--green-main);
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            color: var(--green-dark);
+            font-size: clamp(24px, 3vw, 36px);
+            font-weight: 900;
+            letter-spacing: 0;
+        }
+
+        .section-copy {
+            max-width: 420px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
         }
 
         .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+            min-height: 178px;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel);
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
+        .feature-card.accent {
+            border-color: rgba(215, 149, 58, .38);
+            background: #fffaf0;
         }
 
         .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            background: var(--green-pale);
+            color: var(--green-main);
+            font-weight: 900;
+        }
+
+        .feature-card.accent .feature-icon {
+            background: #fff0d7;
+            color: #9f5f09;
         }
 
         .feature-card h3 {
-            color: #0a4a3a;
-            margin-bottom: 1rem;
+            color: var(--green-dark);
+            font-size: 15px;
+            font-weight: 900;
+            margin-bottom: 8px;
         }
 
-        /* Footer */
+        .feature-card p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .process-band {
+            background: #edf4f0;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .step {
+            padding: 20px 0;
+            border-top: 2px solid var(--green-main);
+        }
+
+        .step-number {
+            color: var(--amber);
+            font-size: 13px;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .step h3 {
+            color: var(--green-dark);
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .step p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .cta-band {
+            width: min(1180px, calc(100% - 40px));
+            margin: 0 auto 56px;
+            padding: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            background: var(--green-dark);
+            color: #fff;
+        }
+
+        .cta-band h2 {
+            font-size: clamp(22px, 3vw, 34px);
+            font-weight: 900;
+            letter-spacing: 0;
+            margin-bottom: 6px;
+        }
+
+        .cta-band p {
+            color: rgba(255, 255, 255, .76);
+            font-size: 14px;
+        }
+
+        .cta-band .btn-large {
+            background: #fff;
+            color: var(--green-main);
+            flex: 0 0 auto;
+        }
+
         .footer {
-            background: #0a2a20;
-            color: white;
+            padding: 24px 28px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 13px;
             text-align: center;
-            padding: 2rem;
-            margin-top: 4rem;
         }
 
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2rem;
+        @media (max-width: 900px) {
+            .navbar {
+                padding: 10px 16px;
+                align-items: flex-start;
+                flex-direction: column;
             }
+
             .nav-links {
-                gap: 1rem;
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .hero {
+                min-height: 76vh;
+                padding-top: 150px;
+            }
+
+            .feature-grid,
+            .steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .section-head,
+            .cta-band {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .nav-links a[href="#fonctionnalites"],
+            .nav-links a[href="#processus"] {
+                display: none;
+            }
+
+            .hero {
+                min-height: 74vh;
+                padding: 142px 20px 58px;
+            }
+
+            .section {
+                width: calc(100% - 32px);
+                padding: 44px 0;
+            }
+
+            .feature-grid,
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-band {
+                width: calc(100% - 32px);
+                padding: 24px;
             }
         }
     </style>
+    <link rel="stylesheet" href="../assets/css/theme.css">
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">Danous <span>budget flow</span></div>
+        <a class="logo" href="index.html" aria-label="Danous">
+            <span class="logo-mark">D</span>
+            <span>Danous <span>gestion budget</span></span>
+        </a>
         <div class="nav-links">
-            <a href="index.html">Accueil</a>
-            <a href="login.html">Connexion</a>
-            <a href="register.html" class="btn-primary">Inscription</a>
+            <a href="#fonctionnalites">Fonctionnalit&eacute;s</a>
+            <a href="#processus">Comment &ccedil;a marche</a>
+            <a href="login.html" class="btn-login">Se connecter</a>
+            <a href="register.html" class="btn-client">Devenir client</a>
         </div>
     </nav>
 
-    <section class="hero">
-        <h1>Gérez vos finances ensemble</h1>
-        <p>Application collaborative de gestion de budget personnel pour famille, colocataires ou équipes de projet</p>
-        <div class="hero-buttons">
-            <a href="register.html" class="btn-large btn-light">Commencer gratuitement</a>
-            <a href="login.html" class="btn-large btn-outline-light">Se connecter</a>
-        </div>
-    </section>
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <div class="eyebrow">Budget personnel et collaboratif</div>
+                <h1>Danous</h1>
+                <p>Une application claire pour suivre vos revenus, ma&icirc;triser vos d&eacute;penses, cr&eacute;er des budgets partag&eacute;s et recevoir des alertes avant le d&eacute;passement.</p>
+                <div class="hero-actions">
+                    <a href="register.html" class="btn-large primary">Devenir client</a>
+                    <a href="login.html" class="btn-large secondary">Se connecter</a>
+                </div>
+                <div class="hero-points" aria-label="Points forts">
+                    <span class="hero-point">Budgets individuels</span>
+                    <span class="hero-point">D&eacute;penses communes</span>
+                    <span class="hero-point">Statistiques visuelles</span>
+                </div>
+            </div>
+        </section>
 
-    <section class="features">
-        <h2>Fonctionnalités principales</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">💰</div>
-                <h3>Suivi des revenus/dépenses</h3>
-                <p>Ajoutez, modifiez et supprimez vos transactions facilement</p>
+        <section class="section" id="fonctionnalites">
+            <div class="section-head">
+                <div>
+                    <div class="section-kicker">Fonctionnalit&eacute;s</div>
+                    <h2 class="section-title">Tout le parcours budget au m&ecirc;me endroit</h2>
+                </div>
+                <p class="section-copy">Danous regroupe les pages essentielles du cahier des charges : tableau de bord, transactions, budgets, collaboration, alertes, profil et statistiques.</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">👥</div>
-                <h3>Budget collaboratif</h3>
-                <p>Partagez vos budgets avec famille, colocataires ou amis</p>
+
+            <div class="feature-grid">
+                <article class="feature-card">
+                    <div class="feature-icon">01</div>
+                    <h3>Tableau de bord</h3>
+                    <p>Revenus, d&eacute;penses, solde, alertes et aper&ccedil;u des budgets d&egrave;s la connexion.</p>
+                </article>
+                <article class="feature-card">
+                    <div class="feature-icon">02</div>
+                    <h3>Transactions</h3>
+                    <p>Ajout, modification et suppression des revenus et d&eacute;penses avec cat&eacute;gories.</p>
+                </article>
+                <article class="feature-card accent">
+                    <div class="feature-icon">03</div>
+                    <h3>Budgets partag&eacute;s</h3>
+                    <p>Cr&eacute;ation de budgets communs, invitation de membres et suivi des d&eacute;penses communes.</p>
+                </article>
+                <article class="feature-card">
+                    <div class="feature-icon">04</div>
+                    <h3>Alertes et statistiques</h3>
+                    <p>Suivi des seuils, courbes d'&eacute;volution, camemberts et histogrammes.</p>
+                </article>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <h3>Tableau de bord</h3>
-                <p>Visualisez vos statistiques et suivez vos objectifs</p>
+        </section>
+
+        <section class="process-band" id="processus">
+            <div class="section">
+                <div class="section-head">
+                    <div>
+                        <div class="section-kicker">Utilisation</div>
+                        <h2 class="section-title">Simple pour l'utilisateur, contr&ocirc;lable par l'admin</h2>
+                    </div>
+                    <p class="section-copy">Les clients g&egrave;rent leur budget. Les administrateurs valident les comptes, les r&ocirc;les, les cat&eacute;gories globales et les demandes de suppression.</p>
+                </div>
+                <div class="steps">
+                    <article class="step">
+                        <div class="step-number">Etape 1</div>
+                        <h3>Cr&eacute;er un compte</h3>
+                        <p>Le client s'inscrit, puis l'administrateur valide l'acc&egrave;s selon le workflow pr&eacute;vu.</p>
+                    </article>
+                    <article class="step">
+                        <div class="step-number">Etape 2</div>
+                        <h3>Organiser le budget</h3>
+                        <p>Transactions, cat&eacute;gories, plafonds et budgets partag&eacute;s sont g&eacute;r&eacute;s depuis l'espace utilisateur.</p>
+                    </article>
+                    <article class="step">
+                        <div class="step-number">Etape 3</div>
+                        <h3>Suivre les r&eacute;sultats</h3>
+                        <p>Le tableau de bord, les alertes et les statistiques avanc&eacute;es montrent l'&eacute;tat financier en continu.</p>
+                    </article>
+                </div>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">⚠️</div>
-                <h3>Alertes intelligentes</h3>
-                <p>Soyez notifié en cas de dépassement de budget</p>
+        </section>
+
+        <section class="cta-band">
+            <div>
+                <h2>Pr&ecirc;t &agrave; g&eacute;rer votre budget avec Danous ?</h2>
+                <p>Cr&eacute;ez votre espace client ou connectez-vous si votre compte est d&eacute;j&agrave; valid&eacute;.</p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">🏷️</div>
-                <h3>Catégories personnalisées</h3>
-                <p>Organisez vos dépenses par catégories</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">📈</div>
-                <h3>Statistiques visuelles</h3>
-                <p>Graphiques et indicateurs pour mieux comprendre</p>
-            </div>
-        </div>
-    </section>
+            <a href="register.html" class="btn-large">Devenir client</a>
+        </section>
+    </main>
 
     <footer class="footer">
         <p>&copy; 2026 Danous - Gestion de Budget Collaborative</p>
     </footer>
+    <script src="../assets/js/theme.js"></script>
 </body>
 </html>

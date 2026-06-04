@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budgets partagés - Danous</title>
+    <link rel="stylesheet" href="../assets/css/icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f4f6f5;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #0a4a3a;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            padding: 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #0d6b55;
+        }
+
+        .nav-item a {
+            color: white;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 260px;
+            padding: 1.5rem;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Shared budgets */
+        .shared-budgets-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-add {
+            background: #0a4a3a;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-add:hover {
+            background: #0d6b55;
+        }
+
+        .budgets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .budget-card {
+            background: var(--white, #fff);
+            border: 1px solid var(--border, #e8e8e8);
+            border-radius: 14px;
+            padding: 20px;
+            transition: box-shadow .2s, transform .2s;
+            cursor: pointer;
+        }
+
+        .budget-card:hover {
+            box-shadow: 0 4px 16px rgba(10, 74, 58, .08);
+            transform: translateY(-1px);
+        }
+
+        .budget-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .budget-card-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--green-dark, #0a4a3a);
+            overflow-wrap: anywhere;
+        }
+
+        .badge-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+            background: var(--bg, #f4f6f5);
+            color: var(--text-muted, #666);
+        }
+
+        .badge-owner {
+            background: #e0f2e9;
+            color: #0a6640;
+        }
+
+        .badge-member {
+            background: #e8f1fb;
+            color: #24527a;
+        }
+
+        .badge-weekly {
+            background: #e8f1fb;
+            color: #24527a;
+        }
+
+        .badge-monthly {
+            background: #edf7ed;
+            color: #2f6f3e;
+        }
+
+        .badge-custom {
+            background: #fff4e5;
+            color: #9a5a00;
+        }
+
+        .badge-ok {
+            background: #e0f2e9;
+            color: #0a6640;
+        }
+
+        .badge-warn {
+            background: #fff3e0;
+            color: #b85c00;
+        }
+
+        .badge-over {
+            background: #fdecea;
+            color: #b3261e;
+        }
+
+        .budget-meta {
+            font-size: 12px;
+            color: var(--text-muted, #666);
+            margin-bottom: 14px;
+        }
+
+        .budget-amounts {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .budget-cap {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0a4a3a;
+        }
+
+        .budget-spent {
+            color: #d32f2f;
+            margin-top: 0.25rem;
+        }
+
+        .progress-wrap {
+            margin-bottom: 10px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            color: var(--text-muted, #666);
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar {
+            background: var(--border, #e8e8e8);
+            border-radius: 10px;
+            overflow: hidden;
+            height: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .progress-fill.fill-ok,
+        .progress-fill.ok {
+            background: #0a6640;
+        }
+
+        .progress-fill.fill-warn,
+        .progress-fill.warning {
+            background: #ff9800;
+        }
+
+        .progress-fill.fill-over,
+        .progress-fill.exceeded {
+            background: #d32f2f;
+        }
+
+        .budget-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border, #e8e8e8);
+        }
+
+        .budget-dates {
+            font-size: 11px;
+            color: var(--text-muted, #666);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn-icon {
+            background: var(--bg, #f4f6f5);
+            color: var(--green-dark, #0a4a3a);
+            border: 1px solid var(--border, #e8e8e8);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 10px;
+        }
+
+        .btn-icon:hover {
+            background: #e0f2e9;
+        }
+
+        .btn-icon.danger {
+            color: #b3261e;
+        }
+
+        .btn-icon.danger:hover {
+            background: #fdecea;
+            border-color: #f2b8b5;
+        }
+
+        .btn-invite {
+            background: #ff9800;
+            color: #fff;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Members section */
+        .members-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .members-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-submit {
+            background: #0a4a3a;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Members table */
+        .members-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .members-table th, .members-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .members-table th {
+            background: #f4f6f5;
+            font-weight: 600;
+        }
+
+        .btn-remove {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .alert {
+            background: #fff3e0;
+            border-left: 4px solid #e67e22;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+
+        .alert-success {
+            background: #e0f2e9;
+            border-left-color: #0a6640;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 1rem 0.5rem; }
+            .sidebar .logo, .sidebar .nav-item a { display: none; }
+            .nav-item { justify-content: center; }
+            .main-content { margin-left: 70px; }
+            .form-row { grid-template-columns: 1fr; }
+            .budgets-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+    <link rel="stylesheet" href="../assets/css/dashboard-shell.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
+</head>
+<body class="app-shell">
+    <script src="../assets/js/icons.js"></script>
+
+    <nav class="nav">
+        <a href="dashboard.html" class="nav-logo">
+            <div class="nav-logo-icon">D</div>
+            <span class="nav-logo-name">Danous</span>
+        </a>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link">Tableau de bord</a>
+            <a href="transactions.html" class="nav-link">Transactions</a>
+            <a href="budget.html" class="nav-link">Budgets</a>
+            <a href="collaboration.html" class="nav-link active">Budgets partagés</a>
+            <a href="categories.html" class="nav-link">Catégories</a>
+            <a href="profile.html" class="nav-link">Profil</a>
+            <a href="alerts.html" class="nav-link">Alertes</a>
+            <a href="statistiques.html" class="nav-link">Statistiques</a>
+        </div>
+        <div class="nav-user">
+            <span class="nav-user-name" id="navUserName">—</span>
+            <button class="btn-logout" onclick="logout()">Déconnexion</button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="header">
+            <h2><svg class="icon title-icon" aria-hidden="true"><use href="#icon-users"></use></svg>Budgets partagés</h2>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <div class="shared-budgets-header">
+            <h3><svg class="icon title-icon" aria-hidden="true"><use href="#icon-users"></use></svg>Mes budgets collaboratifs</h3>
+            <button class="btn-add" onclick="openAddModal()">+ Créer un budget partagé</button>
+        </div>
+
+        <div id="shared-budgets-grid" class="budgets-grid">
+            <div style="text-align:center; grid-column:1/-1;">Chargement...</div>
+        </div>
+    </div>
+
+    <!-- Modal Créer un budget partagé -->
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <h3><svg class="icon title-icon" aria-hidden="true"><use href="#icon-add"></use></svg>Créer un budget partagé</h3>
+            <form id="add-budget-form">
+                <div class="form-group">
+                    <label>Nom du budget *</label>
+                    <input type="text" id="budget-name" required placeholder="Ex: Budget coloc, Vacances famille, ...">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Période</label>
+                        <select id="budget-period">
+                            <option value="weekly">Hebdomadaire</option>
+                            <option value="monthly" selected>Mensuel</option>
+                            <option value="custom">Personnalisée</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Plafond total (TND) *</label>
+                        <input type="number" id="budget-cap" step="0.01" required placeholder="0.00 TND">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date de début</label>
+                        <input type="date" id="budget-start-date">
+                    </div>
+                    <div class="form-group">
+                        <label>Date de fin</label>
+                        <input type="date" id="budget-end-date">
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-submit">Créer le budget</button>
+                    <button type="button" class="btn-secondary" onclick="closeAddModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Inviter un membre -->
+    <div id="invite-modal" class="modal">
+        <div class="modal-content">
+            <h3><svg class="icon title-icon" aria-hidden="true"><use href="#icon-add-user"></use></svg>Inviter un membre</h3>
+            <form id="invite-form">
+                <input type="hidden" id="invite-budget-id">
+                <div class="form-group">
+                    <label>E-mail de l'utilisateur</label>
+                    <input type="email" id="invite-email" required placeholder="exemple@email.com">
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-submit">Inviter</button>
+                    <button type="button" class="btn-secondary" onclick="closeInviteModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Liste des membres -->
+    <div id="members-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="members-modal-title">Membres du budget</h3>
+            <div id="members-list"></div>
+            <div class="modal-buttons">
+                <button type="button" class="btn-secondary" onclick="closeMembersModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Détails du budget -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="details-title">Détails du budget</h3>
+            <div id="details-content"></div>
+            <div class="modal-buttons">
+                <button type="button" class="btn-secondary" onclick="closeDetailsModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let sharedBudgets = [];
+
+        // ============================================
+        // SESSION
+        // ============================================
+        function logout() {
+            fetch('../../backend/api/auth/logout.php', {
+                method: 'POST',
+                credentials: 'include'
+            }).then(() => {
+                window.location.href = 'login.html';
+            });
+        }
+
+        async function checkSession() {
+            try {
+                const response = await fetch('../../backend/api/auth/me.php', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (!data.success) {
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                if (data.user.role !== 'user') {
+                    window.location.href = 'admin.html';
+                    return null;
+                }
+                
+                document.getElementById('navUserName').textContent = data.user.name || 'Utilisateur';
+                currentUser = data.user;
+                return data.user;
+            } catch (error) {
+                console.error('Session error:', error);
+                window.location.href = 'login.html';
+                return null;
+            }
+        }
+
+        // ============================================
+        // CHARGEMENT DES BUDGETS PARTAGÉS
+        // ============================================
+        async function loadSharedBudgets() {
+            try {
+                const response = await fetch('../../backend/api/budget/get_budgets.php', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Filtrer uniquement les budgets partagés
+                    sharedBudgets = data.budgets.filter(b => b.is_shared == 1);
+                    displaySharedBudgets();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error loading shared budgets:', error);
+                showAlert('Erreur de chargement', 'error');
+            }
+        }
+
+        function displaySharedBudgets() {
+            const grid = document.getElementById('shared-budgets-grid');
+            
+            if (!sharedBudgets || sharedBudgets.length === 0) {
+                grid.innerHTML = '<div style="text-align:center; grid-column:1/-1;">Aucun budget partagé. Cliquez sur "Créer un budget partagé" pour commencer.</div>';
+                return;
+            }
+            
+            grid.innerHTML = sharedBudgets.map(budget => {
+                const budgetId = Number(budget.id);
+                const cap = parseFloat(budget.cap_amount || 0);
+                const spent = parseFloat(budget.total_spent || 0);
+                const percentUsed = cap > 0 ? Math.min((spent / cap) * 100, 100) : 0;
+                const statusClass = percentUsed >= 100 ? 'over' : (percentUsed >= 80 ? 'warn' : 'ok');
+                const statusText = statusClass === 'over' ? 'Dépassé' : (statusClass === 'warn' ? 'Attention' : 'OK');
+                const isOwner = budget.user_role === 'owner';
+                const memberCount = Number(budget.member_count || 1);
+                const roleClass = isOwner ? 'badge-owner' : 'badge-member';
+                const roleLabel = isOwner ? 'Propriétaire' : 'Membre';
+                
+                return `
+                    <div class="budget-card" onclick="viewBudgetDetails(${budgetId})">
+                        <div class="budget-card-header">
+                            <div class="budget-card-name">${escapeHtml(budget.name)}</div>
+                            <div class="badge-row">
+                                <span class="badge badge-${escapeHtml(budget.period || 'monthly')}">${periodLabel(budget.period)}</span>
+                                <span class="badge ${roleClass}">${roleLabel}</span>
+                                <span class="badge badge-${statusClass}">${statusText}</span>
+                            </div>
+                        </div>
+                        <div class="budget-meta">${escapeHtml(budget.start_date || '-')} → ${escapeHtml(budget.end_date || '-')}</div>
+                        <div class="progress-wrap">
+                            <div class="progress-label">
+                                <span>Dépensé</span>
+                                <span>${spent.toFixed(2)} / ${cap.toFixed(2)} TND</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill fill-${statusClass}" style="width: ${percentUsed}%"></div>
+                            </div>
+                        </div>
+                        <div class="budget-card-footer">
+                            <div class="budget-dates">${percentUsed.toFixed(1)}% utilisé • ${memberCount} membre(s)</div>
+                            <div class="card-actions">
+                                <button class="btn-icon" onclick="event.stopPropagation(); viewBudgetDetails(${budgetId})">Détails</button>
+                                <button class="btn-icon" data-budget-name="${escapeHtml(budget.name)}" onclick="event.stopPropagation(); viewMembers(${budgetId}, this.dataset.budgetName)">Membres</button>
+                            ${isOwner ? `
+                                <button class="btn-icon" onclick="event.stopPropagation(); openInviteModal(${budgetId})">Inviter</button>
+                                <button class="btn-icon danger" onclick="event.stopPropagation(); deleteBudget(${budgetId})">Supprimer</button>
+                            ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ============================================
+        // CRÉER UN BUDGET PARTAGÉ
+        // ============================================
+        function openAddModal() {
+            document.getElementById('add-modal').style.display = 'flex';
+            document.getElementById('budget-start-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('budget-end-date').value = '';
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').style.display = 'none';
+            document.getElementById('add-budget-form').reset();
+        }
+
+        document.getElementById('add-budget-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const budget = {
+                name: document.getElementById('budget-name').value.trim(),
+                period: document.getElementById('budget-period').value,
+                cap_amount: parseFloat(document.getElementById('budget-cap').value),
+                start_date: document.getElementById('budget-start-date').value,
+                end_date: document.getElementById('budget-end-date').value || null,
+                is_shared: true  // Forcé à true pour les budgets partagés
+            };
+            
+            if (!budget.name || budget.cap_amount <= 0) {
+                showAlert('Nom et montant requis', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('../../backend/api/budget/add_budget.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(budget)
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    closeAddModal();
+                    loadSharedBudgets();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Erreur lors de la création', 'error');
+            }
+        });
+
+        // ============================================
+        // INVITER UN MEMBRE
+        // ============================================
+        function openInviteModal(budgetId) {
+            document.getElementById('invite-budget-id').value = budgetId;
+            document.getElementById('invite-email').value = '';
+            document.getElementById('invite-modal').style.display = 'flex';
+        }
+
+        function closeInviteModal() {
+            document.getElementById('invite-modal').style.display = 'none';
+        }
+
+        document.getElementById('invite-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                budget_id: parseInt(document.getElementById('invite-budget-id').value),
+                email: document.getElementById('invite-email').value.trim()
+            };
+            
+            try {
+                const response = await fetch('../../backend/api/budget/add_budget_member.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeInviteModal();
+                    loadSharedBudgets();
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Erreur lors de l\'invitation', 'error');
+            }
+        });
+
+        // ============================================
+        // VOIR LES MEMBRES
+        // ============================================
+        async function viewMembers(budgetId, budgetName) {
+            try {
+                const response = await fetch(`../../backend/api/budget/get_budget_member.php?budget_id=${budgetId}`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('members-modal-title').innerHTML = `👥 Membres de "${escapeHtml(budgetName)}"`;
+                    
+                    const membersHtml = `
+                        <table class="members-table">
+                            <thead>
+                                <tr><th>Nom</th><th>E-mail</th><th>Rôle</th><th>Date</th><th></th></tr>
+                            </thead>
+                            <tbody>
+                                ${data.members.map(member => `
+                                    <tr>
+                                        <td>${escapeHtml(member.name)}</td>
+                                        <td>${escapeHtml(member.email)}</td>
+                                        <td>${member.role === 'owner' ? '👑 Propriétaire' : '👤 Membre'}</td>
+                                        <td>${member.joined_at ? member.joined_at.split(' ')[0] : '-'}</td>
+                                        <td>
+                                            ${member.role !== 'owner' && currentUser.id === member.id ? 
+                                                `<button class="btn-remove" onclick="leaveBudget(${budgetId})">Quitter</button>` : 
+                                                (member.role !== 'owner' ? 
+                                                    `<button class="btn-remove" onclick="removeMember(${budgetId}, ${member.id})">Retirer</button>` : 
+                                                    '')}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    
+                    document.getElementById('members-list').innerHTML = membersHtml;
+                    document.getElementById('members-modal').style.display = 'flex';
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Erreur lors du chargement des membres', 'error');
+            }
+        }
+
+        function closeMembersModal() {
+            document.getElementById('members-modal').style.display = 'none';
+        }
+
+        // ============================================
+        // RETIRER UN MEMBRE
+        // ============================================
+        async function removeMember(budgetId, memberId) {
+            if (!confirm('Retirer ce membre du budget ?')) return;
+            
+            try {
+                const response = await fetch('../../backend/api/budget/remove_budget_member.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ budget_id: budgetId, member_id: memberId })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    closeMembersModal();
+                    loadSharedBudgets();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Erreur lors du retrait', 'error');
+            }
+        }
+
+        // ============================================
+        // QUITTER UN BUDGET
+        // ============================================
+        async function leaveBudget(budgetId) {
+            if (!confirm('Voulez-vous vraiment quitter ce budget ?')) return;
+            
+            try {
+                const response = await fetch('../../backend/api/budget/remove_budget_member.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ budget_id: budgetId, member_id: currentUser.id })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    closeMembersModal();
+                    loadSharedBudgets();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Erreur', 'error');
+            }
+        }
+
+        // ============================================
+        // DÉTAILS D'UN BUDGET
+        // ============================================
+        async function viewBudgetDetails(budgetId) {
+            try {
+                const response = await fetch(`../../backend/api/budget/get_budget_progress.php?budget_id=${budgetId}`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const budget = data.budget;
+                    const percentUsed = data.percent_used;
+                    const statusClass = data.status === 'exceeded' ? 'exceeded' : (data.status === 'warning' ? 'warning' : 'ok');
+                    
+                    let categoryHtml = '';
+                    if (data.category_breakdown && data.category_breakdown.length > 0) {
+                        categoryHtml = `
+                            <h4 style="margin-top: 1rem;">📊 Dépenses par catégorie</h4>
+                            ${data.category_breakdown.map(cat => `
+                                <div style="margin-bottom: 0.75rem;">
+                                    <strong>${escapeHtml(cat.name)}</strong>
+                                    <div>Dépensé: ${parseFloat(cat.spent || 0).toFixed(2)} TND</div>
+                                    ${cat.cap_amount ? `<div>Plafond: ${parseFloat(cat.cap_amount).toFixed(2)} TND</div>` : ''}
+                                </div>
+                            `).join('')}
+                        `;
+                    }
+                    
+                    let transactionsHtml = '';
+                    if (data.recent_transactions && data.recent_transactions.length > 0) {
+                        transactionsHtml = `
+                            <h4 style="margin-top: 1rem;">📋 Dépenses communes récentes</h4>
+                            <table class="members-table">
+                                <thead><tr><th>Date</th><th>Utilisateur</th><th>Description</th><th>Montant</th></tr></thead>
+                                <tbody>
+                                    ${data.recent_transactions.map(t => `
+                                        <tr>
+                                            <td>${t.date}</td>
+                                            <td>${escapeHtml(t.user_name)}</td>
+                                            <td>${escapeHtml(t.description || '-')}</td>
+                                            <td class="${t.type === 'income' ? 'income' : 'expense'}">${t.type === 'income' ? '+' : '-'} ${parseFloat(t.amount).toFixed(2)} TND</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        `;
+                    }
+                    
+                    document.getElementById('details-title').innerHTML = `📋 ${escapeHtml(budget.name)}`;
+                    document.getElementById('details-content').innerHTML = `
+                        <div class="budget-amounts">
+                            <div>💰 Plafond: ${parseFloat(budget.cap_amount).toFixed(2)} TND</div>
+                            <div>💸 Dépensé: ${data.total_spent.toFixed(2)} TND</div>
+                            <div>✅ Restant: ${data.remaining.toFixed(2)} TND</div>
+                            <div>📊 Pourcentage: ${percentUsed}%</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill ${statusClass}" style="width: ${Math.min(percentUsed, 100)}%"></div>
+                        </div>
+                        ${data.alert_message ? `<div class="alert">${data.alert_message}</div>` : ''}
+                        ${categoryHtml}
+                        ${transactionsHtml}
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e8e8e8;">
+                            <p>📅 Période: ${budget.start_date} → ${budget.end_date}</p>
+                            <p>👤 Propriétaire: ${escapeHtml(budget.owner_name)}</p>
+                        </div>
+                    `;
+                    document.getElementById('details-modal').style.display = 'flex';
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Erreur lors du chargement des détails', 'error');
+            }
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('details-modal').style.display = 'none';
+        }
+
+        // ============================================
+        // SUPPRIMER UN BUDGET
+        // ============================================
+        async function deleteBudget(budgetId) {
+            const budget = sharedBudgets.find(b => b.id === budgetId);
+            if (!confirm(`Supprimer le budget "${budget.name}" ? Tous les membres perdront l'accès.`)) return;
+            
+            try {
+                const response = await fetch('../../backend/api/budget/delete_budget.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ budget_id: budgetId })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    loadSharedBudgets();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Erreur lors de la suppression', 'error');
+            }
+        }
+
+        // ============================================
+        // UTILITAIRES
+        // ============================================
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.getElementById('alert-container');
+            alertDiv.innerHTML = `<div class="alert ${type === 'success' ? 'alert-success' : ''}">${message}</div>`;
+            setTimeout(() => alertDiv.innerHTML = '', 5000);
+        }
+
+        function periodLabel(period) {
+            return { monthly: 'Mensuel', weekly: 'Hebdomadaire', custom: 'Personnalisé' }[period] || period || 'Mensuel';
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/[&<>"']/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                if (m === "'") return '&#39;';
+                return m;
+            });
+        }
+
+        // Fermer les modals
+        window.onclick = (event) => {
+            if (event.target === document.getElementById('add-modal')) closeAddModal();
+            if (event.target === document.getElementById('invite-modal')) closeInviteModal();
+            if (event.target === document.getElementById('members-modal')) closeMembersModal();
+            if (event.target === document.getElementById('details-modal')) closeDetailsModal();
+        }
+
+        // ============================================
+        // DÉMARRAGE
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkSession();
+            if (user) {
+                loadSharedBudgets();
+            }
+        });
+    </script>
+    <script src="../assets/js/theme.js"></script>
+</body>
+</html>

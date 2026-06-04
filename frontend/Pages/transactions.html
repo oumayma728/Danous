@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des transactions - Danous</title>
+    <link rel="stylesheet" href="../assets/css/icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f4f6f5;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #0a4a3a;
+            color: white;
+            position: fixed;
+            height: 100vh;
+            padding: 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #0d6b55;
+        }
+
+        .nav-item a {
+            color: white;
+            text-decoration: none;
+            flex: 1;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 260px;
+            padding: 1.5rem;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Transaction form */
+        .form-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-submit {
+            background: #0a4a3a;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-submit:hover {
+            background: #0d6b55;
+        }
+
+        /* Transactions table */
+        .transactions-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filters input, .filters select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .btn-export {
+            background: #0a4a3a;
+            color: white;
+            border: none;
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-export:hover {
+            background: #0d6b55;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        th {
+            background: #f4f6f5;
+            font-weight: 600;
+        }
+
+        .income {
+            color: #0a6640;
+            font-weight: 600;
+        }
+
+        .expense {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 0.25rem 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 2px;
+        }
+
+        .btn-edit {
+            background: #0a4a3a;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .alert {
+            background: #fff3e0;
+            border-left: 4px solid #e67e22;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 500px;
+            max-width: 90%;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; padding: 1rem 0.5rem; }
+            .sidebar .logo, .sidebar .nav-item a { display: none; }
+            .nav-item { justify-content: center; }
+            .main-content { margin-left: 70px; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+    <link rel="stylesheet" href="../assets/css/dashboard-shell.css">
+    <link rel="stylesheet" href="../assets/css/theme.css">
+</head>
+<body class="app-shell">
+    <script src="../assets/js/icons.js"></script>
+
+    <nav class="nav">
+        <a href="dashboard.html" class="nav-logo">
+            <div class="nav-logo-icon">D</div>
+            <span class="nav-logo-name">Danous</span>
+        </a>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link">Tableau de bord</a>
+            <a href="transactions.html" class="nav-link active">Transactions</a>
+            <a href="budget.html" class="nav-link">Budgets</a>
+            <a href="collaboration.html" class="nav-link">Budgets partagés</a>
+            <a href="categories.html" class="nav-link">Catégories</a>
+            <a href="profile.html" class="nav-link">Profil</a>
+            <a href="alerts.html" class="nav-link">Alertes</a>
+            <a href="statistiques.html" class="nav-link">Statistiques</a>
+        </div>
+        <div class="nav-user">
+            <span class="nav-user-name" id="navUserName">—</span>
+            <button class="btn-logout" onclick="logout()">Déconnexion</button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="header">
+            <h2><svg class="icon title-icon" aria-hidden="true"><use href="#icon-wallet"></use></svg>Gestion des transactions</h2>
+        </div>
+
+        <!-- Alert Container -->
+        <div id="alert-container"></div>
+
+        <!-- Formulaire d'ajout de transaction -->
+        <div class="form-card">
+            <h3><svg class="icon title-icon" aria-hidden="true"><use href="#icon-add"></use></svg>Ajouter une transaction</h3>
+            <form id="transaction-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type *</label>
+                        <select id="type" required>
+                            <option value="expense">D&eacute;pense</option>
+                            <option value="income">Revenu</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Montant *</label>
+                        <input type="number" id="amount" step="0.01" required placeholder="0.00 DT">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Catégorie *</label>
+                        <select id="category_id" required>
+                            <option value="">Sélectionner...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date *</label>
+                        <input type="date" id="transaction_date" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" rows="2" placeholder="Description (optionnel)"></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Ajouter la transaction</button>
+            </form>
+        </div>
+
+        <!-- Liste des transactions -->
+        <div class="transactions-card">
+            <h3><svg class="icon title-icon" aria-hidden="true"><use href="#icon-list"></use></svg>Liste des transactions</h3>
+            
+            <!-- Filtres -->
+            <div class="filters">
+                <input type="text" id="search-input" placeholder="Rechercher..." onkeyup="filterTransactions()">
+                <select id="type-filter" onchange="filterTransactions()">
+                    <option value="all">Tous les types</option>
+                    <option value="income">Revenus</option>
+                    <option value="expense">Dépenses</option>
+                </select>
+                <select id="category-filter" onchange="filterTransactions()">
+                    <option value="all">Toutes les catégories</option>
+                </select>
+                <button type="button" class="btn-export" onclick="exportTransactionsCsv()">Exporter CSV</button>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Catégorie</th>
+                            <th>Type</th>
+                            <th>Montant</th>
+                            <th id="admin-actions-header" style="display:none;">Utilisateur</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-list">
+                        <tr><td colspan="7" style="text-align:center">Chargement...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de modification -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3><svg class="icon title-icon" aria-hidden="true"><use href="#icon-edit"></use></svg>Modifier la transaction</h3>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="edit-type" required>
+                        <option value="expense">Dépense</option>
+                        <option value="income">Revenu</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Montant</label>
+                    <input type="number" id="edit-amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Catégorie</label>
+                    <select id="edit-category_id" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="edit-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="edit-description" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Enregistrer</button>
+                <button type="button" onclick="closeModal()" style="margin-left:10px;">Annuler</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../assets/js/role_guard.js"></script>
+    <script>
+        let currentUserRole = null;
+        let allTransactions = [];
+        let visibleTransactions = [];
+        let categories = [];
+
+        function iconMarkup(name, extraClass = 'inline-icon') {
+            return `<svg class="icon ${extraClass}" aria-hidden="true"><use href="#icon-${name}"></use></svg>`;
+        }
+
+        // ============================================
+        // CHARGEMENT DES DONNÉES
+        // ============================================
+        
+        async function loadCategories() {
+            const response = await fetch('../../backend/api/categories/get_categories.php', { credentials: 'include' });
+            const data = await response.json();
+            if (data.success) {
+                categories = data.categories;
+                populateCategorySelects();
+            }
+        }
+
+        function populateCategorySelects() {
+            const selects = ['category_id', 'edit-category_id', 'category-filter'];
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = selectId === 'category-filter'
+                        ? '<option value="all">Toutes les catégories</option>'
+                        : '<option value="">Sélectionner...</option>';
+                    categories.forEach(cat => {
+                        select.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+                    });
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        async function loadTransactions() {
+            try {
+                const response = await fetch('../../backend/api/transactions/get_transactions.php', { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    allTransactions = data.transactions;
+                    currentUserRole = data.role;
+                    displayTransactions(allTransactions);
+                    
+                    const adminActionsHeader = document.getElementById('admin-actions-header');
+                    if (adminActionsHeader) {
+                        adminActionsHeader.style.display = currentUserRole === 'admin' ? 'table-cell' : 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showAlert('Erreur lors du chargement des transactions');
+            }
+        }
+
+        function displayTransactions(transactions) {
+            const tbody = document.getElementById('transactions-list');
+            visibleTransactions = transactions || [];
+            
+            if (!transactions || transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center">Aucune transaction</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = transactions.map(t => `
+                <tr>
+                    <td>${t.date}</td>
+                    <td>${t.description || '-'}</td>
+                    <td>${t.category_name}</td>
+                    <td>${iconMarkup(t.type === 'income' ? 'wallet' : 'expense')}${t.type === 'income' ? 'Revenu' : 'D&eacute;pense'}</td>
+                    <td class="${t.type}">${t.type === 'income' ? '+' : '-'} ${parseFloat(t.amount).toFixed(2)} DT</td>
+                    ${currentUserRole === 'admin' ? `<td>${t.user_name || t.user_email || 'N/D'}</td>` : ''}
+                    <td>
+                        <button class="btn-edit" onclick="openEditModal(${t.id})" aria-label="Modifier"><svg class="icon" aria-hidden="true"><use href="#icon-edit"></use></svg></button>
+                        <button class="btn-delete" onclick="deleteTransaction(${t.id})" aria-label="Supprimer"><svg class="icon" aria-hidden="true"><use href="#icon-delete"></use></svg></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ============================================
+        // AJOUTER UNE TRANSACTION
+        // ============================================
+        
+        document.getElementById('transaction-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const transaction = {
+                type: document.getElementById('type').value,
+                amount: document.getElementById('amount').value,
+                category_id: document.getElementById('category_id').value,
+                description: document.getElementById('description').value,
+                date: document.getElementById('transaction_date').value || new Date().toISOString().split('T')[0]
+            };
+            
+            try {
+                const response = await fetch('../../backend/api/transactions/add_transaction.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(transaction)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(result.message);
+                    if (result.alert) {
+                        showAlert(result.alert);
+                    }
+                    // Reset form
+                    document.getElementById('transaction-form').reset();
+                    document.getElementById('transaction_date').value = new Date().toISOString().split('T')[0];
+                    // Reload data
+                    loadTransactions();
+                    loadDashboardSummary();
+                } else {
+                    showAlert(result.message);
+                }
+            } catch (error) {
+                showAlert('Erreur lors de l\'ajout');
+            }
+        });
+
+        // ============================================
+        // MODIFIER UNE TRANSACTION
+        // ============================================
+        
+        async function openEditModal(id) {
+            const transaction = allTransactions.find(t => t.id == id);
+            if (!transaction) return;
+            
+            document.getElementById('edit-id').value = transaction.id;
+            document.getElementById('edit-type').value = transaction.type;
+            document.getElementById('edit-amount').value = transaction.amount;
+            document.getElementById('edit-category_id').value = transaction.category_id;
+            document.getElementById('edit-date').value = transaction.date;
+            document.getElementById('edit-description').value = transaction.description || '';
+            
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+        
+        document.getElementById('edit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const transaction = {
+                transaction_id: document.getElementById('edit-id').value,
+                type: document.getElementById('edit-type').value,
+                amount: document.getElementById('edit-amount').value,
+                category_id: document.getElementById('edit-category_id').value,
+                description: document.getElementById('edit-description').value,
+                date: document.getElementById('edit-date').value
+            };
+            
+            try {
+                const response = await fetch('../../backend/api/transactions/update_transaction.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(transaction)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(result.message);
+                    closeModal();
+                    loadTransactions();
+                } else {
+                    showAlert(result.message);
+                }
+            } catch (error) {
+                showAlert('Erreur lors de la modification');
+            }
+        });
+
+        // ============================================
+        // SUPPRIMER UNE TRANSACTION
+        // ============================================
+        
+        async function deleteTransaction(id) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?')) return;
+            
+            try {
+                const response = await fetch('../../backend/api/transactions/delete_transaction.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ transaction_id: id })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert(result.message);
+                    loadTransactions();
+                    loadDashboardSummary();
+                } else {
+                    showAlert(result.message);
+                }
+            } catch (error) {
+                showAlert('Erreur lors de la suppression');
+            }
+        }
+
+        // ============================================
+        // FILTRES
+        // ============================================
+        
+        function filterTransactions() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const typeFilter = document.getElementById('type-filter').value;
+            const categoryFilter = document.getElementById('category-filter').value;
+            
+            let filtered = [...allTransactions];
+            
+            // Filtre par recherche
+            if (searchTerm) {
+                filtered = filtered.filter(t => 
+                    (t.description && t.description.toLowerCase().includes(searchTerm)) ||
+                    (t.category_name && t.category_name.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Filtre par type
+            if (typeFilter !== 'all') {
+                filtered = filtered.filter(t => t.type === typeFilter);
+            }
+            
+            // Filtre par catégorie
+            if (categoryFilter !== 'all') {
+                filtered = filtered.filter(t => t.category_id == categoryFilter);
+            }
+            
+            displayTransactions(filtered);
+        }
+
+        // ============================================
+        // EXPORT CSV
+        // ============================================
+
+        function exportTransactionsCsv() {
+            const transactionsToExport = visibleTransactions;
+
+            if (!transactionsToExport || transactionsToExport.length === 0) {
+                showAlert('Aucune transaction à exporter');
+                return;
+            }
+
+            const headers = ['ID', 'Date', 'Description', 'Catégorie', 'Type', 'Montant (DT)'];
+            if (currentUserRole === 'admin') {
+                headers.push('Utilisateur');
+            }
+
+            const rows = transactionsToExport.map(t => {
+                const signedAmount = t.type === 'income'
+                    ? parseFloat(t.amount || 0)
+                    : -parseFloat(t.amount || 0);
+                const row = [
+                    t.id,
+                    t.date,
+                    t.description || '',
+                    t.category_name || '',
+                    t.type === 'income' ? 'Revenu' : 'Dépense',
+                    signedAmount.toFixed(2)
+                ];
+
+                if (currentUserRole === 'admin') {
+                    row.push(t.user_name || t.user_email || '');
+                }
+
+                return row;
+            });
+
+            const csv = '\uFEFF' + [headers, ...rows]
+                .map(row => row.map(csvCell).join(','))
+                .join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `transactions_${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        function csvCell(value) {
+            const normalized = value === null || value === undefined
+                ? ''
+                : String(value).replace(/\r?\n|\r/g, ' ');
+            return `"${normalized.replace(/"/g, '""')}"`;
+        }
+
+        // ============================================
+        // UTILITAIRES
+        // ============================================
+        
+        function showAlert(message) {
+            const alertDiv = document.getElementById('alert-container');
+            alertDiv.innerHTML = `<div class="alert">${iconMarkup('alert')}${message}</div>`;
+            setTimeout(() => alertDiv.innerHTML = '', 5000);
+        }
+        
+        function closeModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+        
+        async function loadDashboardSummary() {
+            // Optionnel: mettre à jour les KPI du dashboard
+            try {
+                await fetch('../../backend/api/get_dashboard_data.php');
+            } catch(e) {}
+        }
+        
+        function logout() {
+            fetch('../../backend/api/auth/logout.php', { credentials: 'include' }).then(() => {
+                window.location.href = 'login.html';
+            });
+        }
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await requireRole(['user']);
+            if (!user) return;
+            document.getElementById('navUserName').textContent = user.name || 'Utilisateur';
+            document.getElementById('transaction_date').value = new Date().toISOString().split('T')[0];
+            await loadCategories();
+            await loadTransactions();
+        });
+        
+        // Fermer le modal en cliquant en dehors
+        window.onclick = (event) => {
+            if (event.target === document.getElementById('edit-modal')) {
+                closeModal();
+            }
+        }
+    </script>
+    <script src="../assets/js/theme.js"></script>
+</body>
+</html>
