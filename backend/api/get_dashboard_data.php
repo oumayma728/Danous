@@ -47,6 +47,7 @@ try {
 
     $stmt = $pdo->prepare("
         SELECT
+            c.name AS category,
             c.name,
             COALESCE(SUM(t.amount), 0) AS total
         FROM categories c
@@ -65,15 +66,14 @@ try {
 
     $stmt = $pdo->prepare("
         SELECT
-            DATE_FORMAT(`date`, '%b') AS month,
-            DATE_FORMAT(`date`, '%Y-%m') AS sort_month,
-            SUM(amount) AS total
+            DATE_FORMAT(`date`, '%Y-%m') AS month,
+            COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS income,
+            COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS expense
         FROM transactions
         WHERE user_id = ?
-            AND type = 'expense'
-            AND `date` >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
-        GROUP BY sort_month, month
-        ORDER BY sort_month ASC
+            AND `date` >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 5 MONTH), '%Y-%m-01')
+        GROUP BY month
+        ORDER BY month ASC
     ");
     $stmt->execute([$userId]);
     $monthlyRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -82,8 +82,22 @@ try {
     $monthlyExpenses = [];
     foreach ($monthlyRows as $row) {
         $months[] = $row['month'];
-        $monthlyExpenses[] = (float) $row['total'];
+        $monthlyExpenses[] = (float) $row['expense'];
     }
+
+    $stmt = $pdo->prepare("
+        SELECT DISTINCT
+            b.*,
+            (SELECT COALESCE(SUM(t.amount), 0)
+             FROM transactions t
+             WHERE t.budget_id = b.id AND t.type = 'expense') AS spent
+        FROM budgets b
+        LEFT JOIN budget_members bm ON bm.budget_id = b.id
+        WHERE b.owner_id = ? OR bm.user_id = ?
+        ORDER BY b.created_at DESC
+    ");
+    $stmt->execute([$userId, $userId]);
+    $budgets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $stmt = $pdo->prepare("
         SELECT
@@ -92,9 +106,11 @@ try {
             t.amount,
             t.`date`,
             t.description,
-            COALESCE(c.name, 'Uncategorized') AS category_name
+            COALESCE(c.name, 'Uncategorized') AS category_name,
+            COALESCE(b.name, '') AS budget_name
         FROM transactions t
         LEFT JOIN categories c ON c.id = t.category_id
+        LEFT JOIN budgets b ON b.id = t.budget_id
         WHERE t.user_id = ?
         ORDER BY t.`date` DESC, t.id DESC
         LIMIT 10
@@ -108,6 +124,15 @@ try {
         'total_expenses' => $totalExpenses,
         'balance' => $balance,
         'budget_percent' => $budgetPercent,
+        'totals' => [
+            'income' => $totalIncome,
+            'expense' => $totalExpenses,
+            'balance' => $balance
+        ],
+        'budgets' => $budgets,
+        'byCategory' => $categories,
+        'overTime' => $monthlyRows,
+        'recent' => $recentTransactions,
         'categories' => $categories,
         'months' => $months,
         'monthly_expenses' => $monthlyExpenses,
